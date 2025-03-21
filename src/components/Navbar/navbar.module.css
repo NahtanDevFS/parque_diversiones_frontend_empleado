@@ -1,0 +1,328 @@
+/* components/Sidebar.module.css */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    background-color: rgb(255, 147, 58);
+    color: #fff;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebar.closed {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .sidebarContent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .logo {
+    padding: 20px;
+    text-align: center;
+    background-color: rgba(255, 115, 0, 1);
+  }
+  
+  .logo h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #fff;
+  }
+  
+  .menuList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .menuItem {
+    background-color: rgba(255, 115, 0, 1);
+  }
+  
+  .menuLink, .menuButton {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #fff;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+  }
+  
+  .menuButton {
+    justify-content: space-between;
+  }
+  
+  .menuLink:hover, .menuButton:hover {
+    background-color: rgba(255, 115, 0, 1);
+  }
+  
+  .active > .menuLink, .active > .menuButton {
+    background-color: rgb(255, 147, 58);
+    border-left: 4px solid #ffd000;
+  }
+  
+  .icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+    min-width: 20px;
+    text-align: center;
+  }
+  
+  .subIcon {
+    margin-right: 10px;
+    font-size: 1rem;
+    min-width: 16px;
+    text-align: center;
+  }
+  
+  .arrow {
+    font-size: 0.8rem;
+  }
+  
+  .subMenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: rgb(255, 147, 58);
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  
+  .subMenuItem {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px 12px 40px;
+    text-decoration: none;
+    color: #ddd;
+    transition: background-color 0.2s;
+  }
+  
+  .subMenuItem:hover {
+    background-color: rgb(255, 127, 22);
+    color: #fff;
+  }
+  
+  .subMenu .active .subMenuItem {
+    background-color: #2c3e50;
+    color: #fff;
+    border-left: 4px solid #ffd000;
+  }
+  
+  /* Botón de cerrar sesión */
+  .logoutContainer {
+    margin-top: auto;
+    background-color: rgb(255, 132, 32);
+  }
+  
+  .logoutButton {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 16px 20px;
+    background-color: rgb(255, 166, 0);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+  }
+  
+  .logoutButton:hover {
+    background-color: #e74c3c;
+  }
+  
+  .toggleButton {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background-color: rgb(255, 138, 43);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  
+  .toggleButton:hover {
+    background-color: rgb(248, 122, 19);
+  }
+  
+  .toggleButton.active {
+    left: 215px;
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s ease forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* Estilos para dispositivos móviles (menor a 480px) */
+  .sidebar.mobile {
+    width: 85%;
+    max-width: 300px;
+  }
+  
+  .sidebar.mobile .toggleButton.active {
+    left: calc(85% - 35px);
+  }
+  
+  /* Estilos para tablets (481px a 768px) */
+  .sidebar.tablet {
+    width: 70%;
+    max-width: 300px;
+  }
+  
+  .sidebar.tablet .toggleButton.active {
+    left: calc(70% - 35px);
+  }
+  
+  /* Estilos para escritorio (mayor a 768px) */
+  .sidebar.desktop {
+    width: 250px;
+  }
+  
+  .sidebar.desktop.closed {
+    width: 60px;
+    transform: translateX(0);
+  }
+  
+  .sidebar.desktop.closed .menuText,
+  .sidebar.desktop.closed .arrow {
+    display: none;
+  }
+  
+  .sidebar.desktop.closed .logo h2 {
+    font-size: 0;
+  }
+  
+  .sidebar.desktop.closed .logo {
+    padding: 15px 0;
+  }
+  
+  .sidebar.desktop.closed .icon {
+    margin-right: 0;
+  }
+  
+  .sidebar.desktop.closed .menuItem {
+    position: relative;
+  }
+  
+  .sidebar.desktop.closed .subMenu {
+    position: absolute;
+    left: 60px;
+    top: 0;
+    min-width: 200px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    display: none;
+  }
+  
+  .sidebar.desktop.closed .menuItem:hover .subMenu {
+    display: block;
+  }
+  
+  /* Media Queries adicionales para mejor responsividad */
+  @media (max-width: 480px) {
+    .toggleButton {
+      top: 10px;
+      left: 10px;
+      width: 35px;
+      height: 35px;
+      font-size: 1.2rem;
+    }
+    
+    .sidebar .logo {
+      padding: 15px;
+    }
+    
+    .sidebar .logo h2 {
+      font-size: 1.2rem;
+    }
+    
+    .menuLink, .menuButton {
+      padding: 12px 15px;
+      font-size: 0.95rem;
+    }
+    
+    .subMenuItem {
+      padding: 10px 10px 10px 35px;
+      font-size: 0.9rem;
+    }
+    
+    .logoutButton {
+      padding: 14px 15px;
+    }
+  }
+  
+  @media (min-width: 481px) and (max-width: 768px) {
+    .toggleButton {
+      top: 12px;
+      left: 12px;
+    }
+    
+    .menuLink, .menuButton {
+      padding: 13px 18px;
+      font-size: 1rem;
+    }
+  }
+  
+  @media (orientation: landscape) and (max-height: 500px) {
+    .logo {
+      padding: 10px;
+    }
+    
+    .logo h2 {
+      font-size: 1.2rem;
+    }
+    
+    .menuLink, .menuButton {
+      padding: 10px 15px;
+    }
+    
+    .subMenuItem {
+      padding: 8px 8px 8px 35px;
+    }
+    
+    .logoutButton {
+      padding: 12px 15px;
+    }
+  }
