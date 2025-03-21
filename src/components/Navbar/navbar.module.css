@@ -133,7 +133,6 @@
   .logoutContainer {
     margin-top: auto;
     background-color: rgb(255, 132, 32);
-    margin-bottom: 20%;
   }
   
   .logoutButton {
@@ -290,6 +289,7 @@
     }
     
     .logoutButton {
+      margin-bottom: 50%;
       padding: 14px 15px;
     }
   }
@@ -303,6 +303,11 @@
     .menuLink, .menuButton {
       padding: 13px 18px;
       font-size: 1rem;
+    }
+
+    .logoutButton {
+      margin-bottom: 50%;
+      padding: 14px 15px;
     }
   }
   
