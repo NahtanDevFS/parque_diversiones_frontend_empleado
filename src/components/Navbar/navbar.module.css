@@ -133,6 +133,7 @@
   .logoutContainer {
     margin-top: auto;
     background-color: rgb(255, 132, 32);
+    margin-bottom: 20%;
   }
   
   .logoutButton {
