@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  } from 'react'
+import React, { useEffect } from 'react'
 import styles from "./page.module.css";
 import Head from "next/head";
 import { supabase } from './actions';
@@ -22,6 +22,13 @@ interface Empleado {
 export default function LoginPage() {
 
     const router = useRouter();
+
+    useEffect(() => {
+        const session = localStorage.getItem("employeeSession");
+        if (session) {
+          router.push("/");
+        }
+      }, [router]);
 
     const fetchEmpleados = async (): Promise<Empleado[]> => {
         try {
@@ -46,7 +53,7 @@ export default function LoginPage() {
         const empleados = await fetchEmpleados();
 
         const empleadoEncontrado = empleados.find(
-        (empleado) => empleado.email === email && empleado.contrasena === password
+            (empleado) => empleado.email === email && empleado.contrasena === password
         );
 
         if (empleadoEncontrado) {
@@ -85,14 +92,6 @@ export default function LoginPage() {
         <div className={styles.buttonContainer}>
           <button type="submit">Iniciar sesión</button>
         </div>
-
-        {/* Enlace para recuperar contraseña */}
-        <p>
-          ¿Olvidaste tu contraseña?{" "}
-          <a href="/forgot-password" className={styles.loginLink}>
-            Haz clic aquí
-          </a>
-        </p>
       </form>
     </div>
   )

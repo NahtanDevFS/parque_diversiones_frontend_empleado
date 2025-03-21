@@ -4,17 +4,18 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './navbar.module.css';
+import { FaHome, FaUserTie, FaTools, FaLock, FaDollarSign, FaCrown, FaUsers, FaCar, FaTicketAlt, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
 
 interface SubMenuItem {
     name: string;
     path: string;
-    icon?: string;
+    icon?: React.ReactNode;
   }
   
   interface MenuItem {
     name: string;
     path: string;
-    icon: string;
+    icon: React.ReactNode;
     subMenuItems?: SubMenuItem[];
   }
   
@@ -22,75 +23,75 @@ interface SubMenuItem {
     {
       name: 'Inicio',
       path: '/',
-      icon: '🏠',
+      icon: <FaHome />,
     },
     {
       name: 'Operador',
       path: '/operador',
-      icon: '👨‍💼',
+      icon: <FaUserTie />,
       subMenuItems: [
         {
           name: 'Atender Visitante',
           path: '/operador/atender-visitante',
-          icon: '👥'
+          icon: <FaUsers />
         }
       ]
     },
     {
       name: 'Mantenimiento',
       path: '/mantenimiento',
-      icon: '🔧',
+      icon: <FaTools />,
       subMenuItems: [
         {
           name: 'Hacer Mantenimiento',
           path: '/mantenimiento/hacer-mantenimiento',
-          icon: '🛠️'
+          icon: <FaTools />
         }
       ]
     },
     {
       name: 'Seguridad',
       path: '/seguridad',
-      icon: '🔒',
+      icon: <FaLock />,
       subMenuItems: [
         {
           name: 'Vehículos',
           path: '/seguridad/vehiculos',
-          icon: '🚗'
+          icon: <FaCar />
         },
         {
           name: 'Empleados',
           path: '/seguridad/empleados',
-          icon: '👨‍💼'
+          icon: <FaUserTie />
         },
         {
           name: 'Visitantes',
           path: '/seguridad/visitantes',
-          icon: '🧑‍🦰'
+          icon: <FaUsers />
         }
       ]
     },
     {
       name: 'Vendedor',
       path: '/vendedor',
-      icon: '💰',
+      icon: <FaDollarSign />,
       subMenuItems: [
         {
           name: 'Vender Ticket',
           path: '/vendedor/vender-ticket',
-          icon: '🎫'
+          icon: <FaTicketAlt />
         }
       ]
     },
     {
       name: 'Gerente',
       path: '/gerente',
-      icon: '👑',
+      icon: <FaCrown />,
       subMenuItems: [
         {
           name: 'Ver Ingresos de Ventas',
           path: '/gerente/ingresos-ventas',
-          icon: '📊'
+          icon: <FaChartBar />
         }
       ]
     }
@@ -148,10 +149,8 @@ interface SubMenuItem {
     };
   
     const handleLogout = () => {
-      // Aquí puedes implementar la lógica para cerrar sesión
-      // Por ejemplo: redirección a la página de login, limpiar tokens, etc.
-      console.log("Cerrando sesión...");
-      // Por ahora, solo redirigimos a la página de login
+      //lógica para cerrar sesión
+      localStorage.removeItem("employeeSession");
       window.location.href = "/login";
     };
   
@@ -226,7 +225,7 @@ interface SubMenuItem {
                 onClick={handleLogout}
                 aria-label="Cerrar sesión"
               >
-                <span className={styles.icon}>⏻</span>
+                <span className={styles.icon}><FaSignOutAlt /></span>
                 <span className={styles.menuText}>Cerrar Sesión</span>
               </button>
             </div>
