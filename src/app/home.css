@@ -1,8 +1,154 @@
 .home_page {
-  background-color: wheat;
+  background-color: rgba(255, 186, 8, 0.2);
   width: 100%;
   height: auto;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
+.home_container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  width: 60%;
+  height: auto;
+}
+
+.home_welcome_message {
+  margin-bottom: 1%;
+}
+
+.home_date_container {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  background-color: rgba(255, 186, 8, 0.5);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 3%;
+  margin-bottom: 2%;
+}
+
+.home_vision_empresa_container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  background-color: rgba(255, 186, 8, 0.5);
+  padding: 50px;
+  border-radius: 15px;
+  margin-top: 5%;
+}
+
+.home_vision_empresa_text {
+  font-size: 24px;
+}
+
+.home_mision_empresa_container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  background-color: rgba(255, 186, 8, 0.5);
+  padding: 50px;
+  border-radius: 15px;
+  margin-top: 5%;
+}
+
+.home_mision_empresa_text {
+  font-size: 24px;
+}
+
+.home_protocolos_seguridad_parque_container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  background-color: rgba(255, 186, 8, 0.5); /* Un tono naranja con transparencia */
+  padding: 50px;
+  border-radius: 15px;
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+
+.home_protocolos_seguridad_parque_title {
+  font-size: 32px;
+  margin-bottom: 2%;
+}
+
+.home_protocolos_seguridad_parque_list {
+  font-size: 24px;
+  
+}
+
+.home_protocolos_seguridad_parque_list li {
+  margin-top: 15px;
+}
+
+
+@media only screen and (max-width: 768px) {
+  .home_container {
+    width: 80%;
+  }
+  .home_date_container {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .home_container h1 {
+    font-size: 24px;
+  }
+  .home_container h2 {
+    font-size: 20px;
+  }
+  .home_vision_empresa_text,
+  .home_mision_empresa_text,
+  .home_protocolos_seguridad_parque_list {
+    font-size: 16px;
+  }
+}
+
+/* Media Queries para Mobile */
+@media only screen and (max-width: 480px) {
+  .home_container {
+    width: 90%;
+  }
+  .home_container h1 {
+    font-size: 20px;
+  }
+
+  .home_container h2 {
+    font-size: 20px;
+  }
+  .home_date_container {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .home_date_container h2 {
+    font-size: 14px;
+  }
+  .home_vision_empresa_text,
+  .home_mision_empresa_text,
+  .home_protocolos_seguridad_parque_list {
+    font-size: 15px;
+  }
+  .home_vision_empresa_container,
+  .home_mision_empresa_container,
+  .home_protocolos_seguridad_parque_container {
+    padding: 20px;
+  }
+}
+
+
+
+
+
