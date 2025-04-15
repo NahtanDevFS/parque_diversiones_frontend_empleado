@@ -5,11 +5,16 @@ import styles from "./page.module.css";
 import Head from "next/head";
 import { supabase } from './actions';
 import { useRouter } from "next/navigation";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
 
 interface Empleado {
     id_empleado: number;
     nombre: string;
     apellido: string;
+    empleado_foto: string;
     fecha_contratacion: string;
     salario: number;
     id_puesto: number;
@@ -17,6 +22,7 @@ interface Empleado {
     email: string;
     contrasena: string;
     telefono: string;
+    estado_cuenta: number;
 }
 
 export default function LoginPage() {
@@ -53,21 +59,30 @@ export default function LoginPage() {
         const empleados = await fetchEmpleados();
 
         const empleadoEncontrado = empleados.find(
-            (empleado) => empleado.email === email && empleado.contrasena === password
+            (empleado) => empleado.email === email && empleado.contrasena === password && empleado.estado_cuenta === 1
         );
 
         if (empleadoEncontrado) {
-            alert("Acceso concedido");
-            
-            // Guardar el empleado en localStorage sin la contraseña por seguridad
-            const { contrasena, ...empleadoSinContrasena } = empleadoEncontrado;
-            localStorage.setItem("employeeSession", JSON.stringify(empleadoSinContrasena));
-
-            // Redirigir a la ruta "/"
-            router.push("/");
+            // Acceso concedido con SweetAlert
+            MySwal.fire({
+              title: "Acceso concedido",
+              icon: "success",
+              confirmButtonText: "Ok"
+          }).then(() => {
+              // Se elimina la contraseña por seguridad y se guarda el empleado en localStorage
+              const { contrasena, ...empleadoSinContrasena } = empleadoEncontrado;
+              localStorage.setItem("employeeSession", JSON.stringify(empleadoSinContrasena));
+              router.push("/");
+          });
 
         } else {
-        alert("Acceso denegado");
+          // Acceso denegado con SweetAlert
+          MySwal.fire({
+            title: "Acceso denegado",
+            text: "Verifica tus credenciales o que tu cuenta se encuentre activa.",
+            icon: "error",
+            confirmButtonText: "Ok"
+          });
         }
     }
 
