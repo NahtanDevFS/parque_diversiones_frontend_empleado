@@ -5,7 +5,6 @@
    .juego-contenedor {
     text-align: center;
     padding: 2rem;
-    margin-top: 1rem;
     background-color: rgba(255, 186, 8, 0.2);
     min-height: 100vh;
   }
@@ -18,7 +17,8 @@
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
-    margin: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
     transition: background-color 0.3s ease;
     animation: pulso 2s infinite ease-in-out;
   }
@@ -50,7 +50,7 @@
     box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     border: 6px solid rgba(255, 186, 8, 0.5);
     width: fit-content;
-    margin: 2rem auto;
+    margin: 2rem -1.5rem;
     position: relative;
     display: inline-block;
   }
