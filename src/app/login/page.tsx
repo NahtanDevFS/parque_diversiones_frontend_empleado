@@ -6,6 +6,7 @@ import Head from "next/head";
 import { supabase } from './actions';
 import { useRouter } from "next/navigation";
 
+
 interface Empleado {
     id_empleado: number;
     nombre: string;

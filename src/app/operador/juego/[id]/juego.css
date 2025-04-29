@@ -1,0 +1,184 @@
+/* ===============================
+   ESTILOS PARA VISTA DE JUEGO MEJORADA
+   =============================== */
+
+   .juego-contenedor {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 1rem;
+    background-color: rgba(255, 186, 8, 0.2);
+    min-height: 100vh;
+  }
+  
+  .boton-ciclo {
+    background-color: #ff6600;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    margin: 1rem;
+    transition: background-color 0.3s ease;
+    animation: pulso 2s infinite ease-in-out;
+  }
+  
+  .boton-ciclo:hover {
+    background-color: #e65300;
+  }
+  
+  @keyframes pulso {
+    0%, 100% {
+      box-shadow: 0 0 0px rgba(255, 102, 0, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 15px rgba(255, 102, 0, 0.7);
+    }
+  }
+  
+  .temporizador {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    color: #ff6600;
+  }
+  
+  .cabina-marco {
+    background-color: rgba(255, 186, 8, 0.5);
+    padding: 2rem 1rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    border: 6px solid rgba(255, 186, 8, 0.5);
+    width: fit-content;
+    margin: 2rem auto;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .cabina-marco::before {
+    content: '🚋 Cabina de juego';
+    position: absolute;
+    top: -1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ffa726;
+    color: white;
+    font-weight: bold;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  
+  .cine-asientos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  
+  .fila {
+    display: grid;
+    grid-template-columns: auto repeat(4, 60px); /* 1 para la letra + 4 asientos */
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .etiqueta-fila {
+    font-weight: bold;
+    text-align: right;
+    padding-right: 5px;
+  }
+  
+  .asiento {
+    width: 50px;
+    height: 50px;
+    background-color: #4caf50;
+    color: white;
+    font-weight: bold;
+    border-radius: 12px 12px 5px 5px;
+    box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease;
+    position: relative;
+  }
+  
+  .asiento::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+  
+  .asiento.ocupado {
+    background-color: #d32f2f;
+  }
+  
+  .asiento:hover {
+    transform: scale(1.08);
+    cursor: pointer;
+  }
+  
+  .leyenda {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  
+  .cuadro {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-right: 5px;
+  }
+  
+  .cuadro.libre {
+    background-color: #4caf50;
+  }
+  
+  .cuadro.ocupado {
+    background-color: #d32f2f;
+  }
+  
+  @media screen and (max-width: 600px) {
+    .asiento {
+      width: 40px;
+      height: 40px;
+      font-size: 0.75rem;
+    }
+    .etiqueta-fila {
+      font-size: 0.75rem;
+    }
+    .pantalla-centrada {
+      font-size: 0.9rem;
+    }
+    .boton-ciclo {
+      width: 100%;
+    }
+  }
+  
+  .pantalla-centrada {
+    text-align: center;
+    margin-top: 2rem;
+    background-color: #ccc;
+    padding: 6px 0;
+    width: 200px;
+    border-radius: 6px;
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+ 
