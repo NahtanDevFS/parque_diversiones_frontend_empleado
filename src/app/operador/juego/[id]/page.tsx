@@ -256,17 +256,42 @@ export default function JuegoDetalle() {
   });
 };
 
-  const iniciarEscaneo = () => {
+  const iniciarEscaneo = async () => {
   const html5QrCode = new Html5Qrcode("reader");
 
-  Html5Qrcode.getCameras().then((devices: { id: string }[]) => {
-    if (devices.length) {
-      html5QrCode.start(
-        devices[0].id,
+  try {
+    const devices = await Html5Qrcode.getCameras();
+    if (devices.length === 0) {
+      Swal.fire('❌ Sin cámara', 'No se detectó ninguna cámara disponible.', 'error');
+      return;
+    }
+
+    if (devices.length > 1) {
+      // Si hay más de una cámara, preguntar
+      const opciones = devices.map((device, index) => ({
+        id: device.id,
+        label: device.label || `Cámara ${index + 1}`
+      }));
+
+      const { value: seleccion } = await Swal.fire({
+        title: 'Selecciona una cámara',
+        input: 'select',
+        inputOptions: opciones.reduce((acc, opt) => {
+          acc[opt.id] = opt.label;
+          return acc;
+        }, {} as Record<string, string>),
+        inputPlaceholder: 'Selecciona una cámara',
+        showCancelButton: true,
+      });
+
+      if (!seleccion) return; // Canceló
+
+      await html5QrCode.start(
+        seleccion,
         { fps: 10, qrbox: 250 },
         async qrCode => {
           try {
-            await html5QrCode.stop(); // 🔒 Detener escáner justo después de leer
+            await html5QrCode.stop();
             await handleScanQR(qrCode);
           } catch (err) {
             console.error('Error en handleScanQR:', err);
@@ -277,11 +302,27 @@ export default function JuegoDetalle() {
         }
       );
     } else {
-      Swal.fire('❌ Sin cámara', 'No se detectó ninguna cámara disponible.', 'error');
+      // Solo una cámara
+      await html5QrCode.start(
+        devices[0].id,
+        { fps: 10, qrbox: 250 },
+        async qrCode => {
+          try {
+            await html5QrCode.stop();
+            await handleScanQR(qrCode);
+          } catch (err) {
+            console.error('Error en handleScanQR:', err);
+          }
+        },
+        error => {
+          console.warn("Error al escanear QR:", error);
+        }
+      );
     }
-  }).catch(err => {
+  } catch (err) {
     console.error("Error al obtener cámaras:", err);
-  });
+    Swal.fire('❌ Error', 'No se pudieron cargar las cámaras.', 'error');
+  }
 };
 
   const filasUnicas = Array.from(new Set(asientos.map(a => a.fila)));
