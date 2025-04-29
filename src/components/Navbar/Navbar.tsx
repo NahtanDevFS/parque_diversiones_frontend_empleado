@@ -92,6 +92,11 @@ interface SubMenuItem {
           name: 'Ver Ingresos de Ventas',
           path: '/gerente/ingresos-ventas',
           icon: <FaChartBar />
+        },
+        {
+          name: 'Control de personal',
+          path: '/gerente/control-personal',
+          icon: <FaUsers />
         }
       ]
     }
