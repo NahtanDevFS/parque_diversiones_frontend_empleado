@@ -1,0 +1,150 @@
+.atender_visitante_grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 900px; /* Limita el ancho total */
+    margin: 0 auto;    /* Centra horizontalmente */
+  }
+  
+  .juego-card {
+    width: 100%;
+    max-width: 350px;
+    background-color: rgba(255, 186, 8, 0.5);
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 1rem;
+    margin: 0 auto;
+  }
+  
+  .juego-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  .juego-imagen {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 0.8rem;
+  }
+  
+  h3 {
+    font-size: 1rem;
+    color: #222;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  /* Pantallas medianas en adelante: 2 columnas */
+  @media (min-width: 768px) {
+    .atender_visitante_grid {
+      grid-template-columns: repeat(2, 1fr);
+      justify-content: center;
+    }
+  }
+
+  .titulo_operador {
+    text-align: center;
+    padding: 2rem 1rem 1rem;
+  }
+  
+  .titulo_operador h1 {
+    font-size: 2rem;
+    color: #ff6600;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .titulo_operador p {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Responsive para pantallas pequeñas */
+  @media (max-width: 480px) {
+    .titulo_operador h1 {
+      font-size: 1.5rem;
+    }
+  
+    .titulo_operador p {
+      font-size: 1rem;
+    }
+  }
+  
+  
+.juego-contenedor {
+    padding: 2rem;
+    text-align: center;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .boton-ciclo {
+    background-color: #ff6600;
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .boton-ciclo:hover:enabled {
+    background-color: #e65c00;
+  }
+  
+  .boton-ciclo:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+  }
+  
+  .temporizador {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #003366;
+  }
+  
+  .asientos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+    gap: 12px;
+    justify-items: center;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .asiento {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    font-weight: bold;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    user-select: none;
+  }
+  
+  .asiento.libre {
+    background-color: #4caf50; /* verde */
+  }
+  
+  .asiento.ocupado {
+    background-color: #e53935; /* rojo */
+  }
+
+  body {
+    background-color: rgba(255, 186, 8, 0.2);
+  }
