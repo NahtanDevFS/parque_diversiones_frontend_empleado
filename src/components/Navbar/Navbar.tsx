@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './navbar.module.css';
-import { FaHome, FaUserTie, FaTools, FaLock, FaDollarSign, FaCrown, FaUsers, FaCar, FaTicketAlt, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaUserTie, FaTools, FaLock, FaDollarSign, FaCrown, FaUsers, FaCar, FaTicketAlt, FaChartBar, FaSignOutAlt, FaCalendar, FaFortAwesome  } from 'react-icons/fa';
 
 interface SubMenuItem {
     name: string;
@@ -97,6 +97,16 @@ interface SubMenuItem {
           name: 'Control de personal',
           path: '/gerente/control-personal',
           icon: <FaUsers />
+        },
+        {
+          name: 'Ingreso de Atracciones',
+          path: '/gerente/agregar-atraccion',
+          icon: <FaFortAwesome />
+        },
+        {
+          name: 'Ingreso de Eventos',
+          path: '/gerente/agregar-evento',
+          icon: <FaCalendar />
         }
       ]
     }

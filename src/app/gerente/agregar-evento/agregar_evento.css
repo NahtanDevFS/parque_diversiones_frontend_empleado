@@ -1,0 +1,105 @@
+
+.agregar-evento-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 186, 8, 0.2);
+    padding: 2rem;
+  }
+  
+  /* Contenedor base */
+  .form-container {
+    max-width: 480px;
+    width: 100%;
+    margin: 4rem auto;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: rgba(255, 186, 8, 0.3);
+  }
+  
+  /* Etiquetas y campos */
+  .form-container label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .form-container input,
+  .form-container textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Botón */
+  .form-container button {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    width: 100%;
+    border: none;
+    border-radius: 4px;
+    background-color: rgb(255, 111, 0);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .form-container button:hover {
+    background-color: rgb(255, 94, 0);
+  }
+  
+  .form-add-event-title {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  /* Tablet: pantallas ≤ 768px */
+  @media (max-width: 768px) {
+    .agregar-evento-page {
+      padding: 1.5rem;
+    }
+  
+    .form-container {
+      margin: 2rem auto;
+      padding: 1.25rem;
+      max-width: 90%;
+    }
+  
+    .form-container button {
+      font-size: 0.95rem;
+      padding: 0.65rem;
+    }
+  }
+  
+  /* Móvil: pantallas ≤ 480px */
+  @media (max-width: 480px) {
+    .agregar-evento-page {
+      padding: 1rem;
+    }
+  
+    .form-container {
+      margin: 1rem auto;
+      padding: 1rem;
+      border-width: 1px;
+      border-radius: 4px;
+    }
+  
+    .form-container label {
+      font-size: 0.9rem;
+    }
+  
+    .form-container input,
+    .form-container textarea {
+      padding: 0.4rem;
+      font-size: 0. nine0rem;
+    }
+  
+    .form-container button {
+      padding: 0.6rem;
+      font-size: 0. nine0rem;
+    }
+  }
+  

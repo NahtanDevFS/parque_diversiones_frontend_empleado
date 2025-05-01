@@ -15,6 +15,7 @@
     border-radius: 0.5rem;
     cursor: pointer;
     margin-top: 1rem;
+    margin-left: 10px;
     transition: background-color 0.3s ease;
     animation: pulso 2s infinite ease-in-out;
   }
@@ -162,6 +163,7 @@
     }
     .boton-ciclo {
       width: 100%;
+      margin-left: 0;
     }
   }
   

@@ -37,18 +37,20 @@ export default function AtenderVisitante() {
 
   return (
     <LayoutWithSidebar>
-      <div className="titulo_operador">
-        <h1>Bienvenido al control de atracciones</h1>
-        <p>Escoja el juego que está a su cargo</p>
-      </div>
+      <div className='Atender_visitante_page'>
+        <div className="titulo_operador">
+          <h1>Bienvenido al control de atracciones</h1>
+          <p>Escoja el juego que está a su cargo</p>
+        </div>
 
-      <div className="atender_visitante_grid">
-        {juegos.map((juego) => (
-          <div key={juego.id_atraccion} className="juego-card" onClick={() => irAJuego(juego.id_atraccion)}>
-            <img src={juego.juego_foto} alt={juego.nombre} className="juego-imagen" />
-            <h3>{juego.nombre}</h3>
-          </div>
-        ))}
+        <div className="atender_visitante_grid">
+          {juegos.map((juego) => (
+            <div key={juego.id_atraccion} className="juego-card" onClick={() => irAJuego(juego.id_atraccion)}>
+              <img src={juego.juego_foto} alt={juego.nombre} className="juego-imagen" />
+              <h3>{juego.nombre}</h3>
+            </div>
+          ))}
+        </div>
       </div>
     </LayoutWithSidebar>
   );
