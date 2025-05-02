@@ -44,9 +44,6 @@ export default function Comprar() {
             }
           }, [router]);
 
-  // notificación de puntos
-  const [showPointsNotif, setShowPointsNotif] = useState(false);
-
   // precios por tipo de ticket
   const precios: Record<string, number> = {
     entrada: 50,
@@ -69,34 +66,6 @@ export default function Comprar() {
     titular: ''
   });
   const [emailSent, setEmailSent] = useState<boolean>(false);
-
-  useEffect(() => {
-    const session = localStorage.getItem("supabaseSession");
-    if (session) {
-      const parsed = JSON.parse(session);
-      const id = parsed.user.id;
-      setUserId(id);
-
-      // comprobar si tiene suficientes puntos
-      (async () => {
-        const { data, error } = await supabase
-          .from('cliente')
-          .select('puntos')
-          .eq('id_cliente', id)
-          .single();
-        if (!error && data?.puntos >= 50) {
-          setShowPointsNotif(true);
-        }
-      })();
-    } else {
-      Swal.fire({
-        title: "Aviso",
-        text: "Necesitas crear una cuenta para comprar tickets",
-        icon: "warning",
-        confirmButtonText: "OK",
-      });
-    }
-  }, []);
 
   const formatearNumeroTarjeta = (value: string) => {
     const limpio = value.replace(/\D/g, '').slice(0, 16);
@@ -124,26 +93,8 @@ export default function Comprar() {
     setCantidad(val < 1 ? 1 : val);
   };
 
-  const handleNotifClick = () => {
-    router.push('/perfil_cliente');
-  };
-  const handleCloseNotif = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    setShowPointsNotif(false);
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!userId) {
-      Swal.fire({
-        title: "Error",
-        text: "Necesitas crear una cuenta para comprar tickets",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
     // Validación si es efectivo y da menos del precio
     if (metodoPago === 'efectivo' && efectivoRecibido < total) {
       Swal.fire({
@@ -178,7 +129,7 @@ export default function Comprar() {
     setEmailSent(false);
 
     const formData = new FormData(form);
-    formData.append("id_cliente", userId);
+    //formData.append("id_cliente", userId);
     formData.append("cantidad", cantidad.toString());
     formData.append("precio", precioUnitario.toString());
     formData.append("metodopago", "1");
@@ -197,7 +148,7 @@ export default function Comprar() {
       Swal.fire({
         icon: 'success',
         title: '¡Listo!',
-        text: 'El correo con tu código QR se ha enviado correctamente. En caso de no llegar el correo puedes ver tus tickets en la sección de Mis Tickets.',
+        text: 'El correo con tu código QR se ha enviado correctamente.',
       });
     } else {
       Swal.fire({
@@ -219,13 +170,6 @@ export default function Comprar() {
   return (
     <LayoutWithSidebar>
     <div className={styles.container}>
-      {showPointsNotif && (
-        <div className={styles.pointsNotif} onClick={handleNotifClick}>
-          <span>¡Ya puedes canjear tus puntos por un ticket!</span>
-          <button className={styles.closeButton} onClick={handleCloseNotif}>×</button>
-        </div>
-      )}
-
       <Head>
         <title>Compra de Ticket</title>
       </Head>

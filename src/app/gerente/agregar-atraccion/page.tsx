@@ -17,6 +17,7 @@ export default function AgregarAtraccionPage() {
   const [modelo, setModelo] = useState('')
   const [anio, setAnio] = useState('')
   const [nombre, setNombre] = useState('')
+  const [descripcionAtraccion, setDescripcionAtraccion] = useState('')
   const [capacidad, setCapacidad] = useState('')
   const [alturaMinima, setAlturaMinima] = useState('')
   const [idEmpleado, setIdEmpleado] = useState('')
@@ -84,11 +85,6 @@ export default function AgregarAtraccionPage() {
       await Swal.fire({ icon: 'warning', title: 'Formato no válido', text: 'Solo se aceptan JPG, PNG o WEBP.' })
       return
     }
-    // Tamaño ≤ 5MB
-    if (file.size > 5 * 1024 * 1024) {
-      await Swal.fire({ icon: 'warning', title: 'Archivo muy grande', text: 'La imagen no debe superar 5 MB.' })
-      return
-    }
     if (!modelo || !anio || !nombre) {
       await Swal.fire({ icon: 'warning', title: 'Campos vacíos', text: 'Modelo, año y nombre son obligatorios.' })
       return
@@ -144,6 +140,7 @@ export default function AgregarAtraccionPage() {
         modelo,
         anio,
         nombre,
+        descripcion_atraccion: descripcionAtraccion,
         capacidad: +capacidad,
         altura_minima: +alturaMinima,
         id_empleado_encargado: +idEmpleado,
@@ -167,6 +164,7 @@ export default function AgregarAtraccionPage() {
     setModelo('')
     setAnio('')
     setNombre('')
+    setDescripcionAtraccion('')
     setCapacidad('')
     setAlturaMinima('')
     setIdEmpleado('')
@@ -195,6 +193,16 @@ export default function AgregarAtraccionPage() {
             <label>
               Nombre
               <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} required />
+            </label>
+
+            <label>
+              Descripción de la Atracción
+              <textarea
+                rows={3}
+                value={descripcionAtraccion}
+                onChange={e => setDescripcionAtraccion(e.target.value)}
+                required
+              />
             </label>
 
             <label>

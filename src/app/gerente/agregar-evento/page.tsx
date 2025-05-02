@@ -198,18 +198,16 @@ export default function AgregarEventoPage() {
                 type="text"
                 value={nombre}
                 onChange={e => setNombre(e.target.value)}
-                placeholder="Ej. Desfile hípico"
                 required
               />
             </label>
 
             <label>
-              Descripción
+              Descripción del Evento
               <textarea
                 rows={4}
                 value={descripcion}
                 onChange={e => setDescripcion(e.target.value)}
-                placeholder="Detalles del evento..."
                 required
               />
             </label>
