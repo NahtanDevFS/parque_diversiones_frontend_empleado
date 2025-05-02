@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './navbar.module.css';
-import { FaHome, FaUserTie, FaTools, FaLock, FaDollarSign, FaCrown, FaUsers, FaCar, FaTicketAlt, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaUserTie, FaTools, FaLock, FaDollarSign, FaCrown, FaUsers, FaCar, FaTicketAlt, FaChartBar, FaSignOutAlt, FaUserAlt } from 'react-icons/fa';
+import { FaUbuntu } from 'react-icons/fa6';
 
 interface SubMenuItem {
     name: string;
@@ -68,7 +69,13 @@ interface SubMenuItem {
           name: 'Visitantes',
           path: '/seguridad/visitantes',
           icon: <FaUsers />
-        }
+        },
+        {
+          name: 'Control de Visitantes',
+          path: '/seguridad/control-visitante',
+          icon: <FaUsers />
+        },
+
       ]
     },
     {

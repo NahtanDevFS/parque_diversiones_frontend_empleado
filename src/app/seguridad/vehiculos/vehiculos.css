@@ -1,0 +1,136 @@
+/* === vehiculos.css === */
+
+.vehiculos-container {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 2rem auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: rgba(255, 186, 8, 0.2) /* tu color personalizado */
+  }
+
+  .resumen-estacionamiento {
+    display: flex;
+    justify-content: center; /*esto lo puedo quitar si no me gusta*/
+    gap: 2rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+  }
+
+  .vehiculo-icono {
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+  }
+  
+
+
+
+  
+  .titulo {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 2rem;
+  }
+  
+  .search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-container input {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 250px;
+    transition: box-shadow 0.2s;
+  }
+  
+  .search-container input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 0.75rem;
+    justify-content: center;
+    padding-top: 1rem;
+  }
+  
+  .espacio {
+    width: 100%;
+    max-width: 100px; /* <-- Agregado para limitar el ancho */
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin: 0 auto; /* <-- Opcional, para centrar cuando hay solo uno */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+
+  .btn-pdf {
+    margin: 1rem auto;
+    padding: 0.5rem 1rem;
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-pdf:hover {
+    background-color: #2980b9;
+  }
+  
+  
+  
+  .espacio:hover {
+    transform: scale(1.05);
+    transform: scale(1.05);
+  }
+  
+  .espacio.libre {
+    background-color: #27ae60;
+  }
+  
+  .espacio.ocupado {
+    background-color: #c0392b;
+  }
+  
+  @media (max-width: 600px) {
+    .search-container input {
+      width: 100%;
+    }
+  
+    .grid {
+      grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    }
+  
+    .vehiculos-container {
+      padding: 1rem;
+    }
+  }
+  
