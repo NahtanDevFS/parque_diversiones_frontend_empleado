@@ -1,0 +1,211 @@
+
+.maquinas_page {
+    background-color: rgba(255, 157, 0, 1);
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+  }
+  
+  /* Título principal */
+  .maquinas_page h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Contenedor que agrupa las máquinas */
+  .contenedor_maquinas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  /* Tarjeta individual de cada máquina */
+  .maquina_card {
+    background-color: rgba(8, 70, 255, 0.56); /* Naranja clarito */
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    color: #fff;
+  }
+  
+  /* Encabezado dentro de cada tarjeta */
+  .maquina_card h2 {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  
+  /* Imagen dentro de la tarjeta */
+  .maquina_card img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  
+  /* Subtítulo para secciones como "Ficha Técnica" */
+  .maquina_card h3 {
+    margin-top: 10px;
+    margin-bottom: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+  
+  /* Lista de items (ficha técnica, checklist, etc.) */
+  .maquina_card ul {
+    list-style: disc;
+    margin-left: 20px;
+  }
+  
+  /* El contenedor del formulario de mantenimiento */
+  .form_mantenimiento {
+    margin-top: 10px;
+  }
+  
+  /* Texto "Registrar nuevo Mantenimiento" */
+  .form_mantenimiento h4 {
+    margin-bottom: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  /* El select de tipo de mantenimiento */
+  .form_mantenimiento select {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px;
+    margin-bottom: 5px;
+    cursor: pointer;
+  }
+  
+  /* Textarea para descripción/detalles */
+  .descripcion_detalles {
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 4px;
+    border: 2px solid #ffffff;
+    background-color: #fff; /* Fondo blanco */
+    color: #000;           /* Texto negro para legibilidad */
+    resize: vertical;      /* Se puede redimensionar verticalmente */
+    font-family: sans-serif;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  
+  /* Botón "Agregar Mantenimiento" y botones para navegar */
+  .form_mantenimiento button,
+  .maquinas_page button {
+    background-color: #4caf50;
+    margin-top: 10px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-top: 4px;
+    margin-right: 8px;
+    margin-bottom: 10;
+    margin-left: 75px;
+    margin-right: 75px;    
+    
+  }
+  
+  
+  .form_mantenimiento button:hover,
+  .maquinas_page button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Ajuste para el <details> */
+  .maquina_card details {
+    margin-top: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .maquina_card summary {
+    font-weight: bold;
+  }
+  
+  /* Opcional, un poco de estilo al texto que aparece dentro de details */
+  .maquina_card details ul {
+    list-style: circle;
+    margin-left: 25px;
+  }
+  h4 {
+    margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 5px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    border-radius: 8px;
+  }
+
+  summary {
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+  
+  summary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .ficha-tecnica {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  .ficha-tecnica {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    color: #fff;
+  }
+  
+  .ficha-tecnica h3 {
+    margin-top: 0;
+  }
+  
+  .ficha-tecnica ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .ficha-tecnica li {
+    padding: 5px 0;
+  }  
+  select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+textarea {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical; /* Permitir redimensionar solo verticalmente */
+  }
+  
+  .maquina_card button {
+    margin-top: auto; /* Empuja el botón hacia abajo */
+  }
+  .maquina_card button:hover {
+    background-color: #45a049;
+  }  
