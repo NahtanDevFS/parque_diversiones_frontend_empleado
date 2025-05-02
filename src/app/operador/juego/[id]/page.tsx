@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import LayoutWithSidebar from '@/components/LayoutWithSidebar';
 import { supabase } from '@/app/login/actions';
 import './juego.css';
@@ -29,6 +29,36 @@ export default function JuegoDetalle() {
   const [cicloEnCurso, setCicloEnCurso] = useState(false);
   const [ultimoQR, setUltimoQR] = useState<string | null>(null);
   const [bloqueado, setBloqueado] = useState(false);
+
+  const router = useRouter();
+  
+      
+        // Validación del token para proteger la ruta
+          useEffect(() => {
+            const storedSession = localStorage.getItem('employeeSession');
+            if (!storedSession) {
+              // Si no hay token, redireccionar a la página de inicio
+              router.push('/');
+              return;
+            }
+            try {
+              const session = JSON.parse(storedSession);
+              // Solo el gerente (id_puesto = 3) y el operador (id_puesto = 1) tiene acceso a esta página
+              if (session.id_puesto !== 3 && session.id_puesto !== 1) {
+                Swal.fire({
+                    title: 'Acceso denegado',
+                    text: 'No tienes permiso para acceder a ese módulo',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                  }).then(() => {
+                    router.push('/');
+                  });
+              }
+            } catch (error) {
+              console.error("Error al parsear el token", error);
+              router.push('/');
+            }
+          }, [router]);
 
   useEffect(() => {
     async function fetchAtraccion() {

@@ -4,6 +4,7 @@ import LayoutWithSidebar from '@/components/LayoutWithSidebar';
 import './atender_visitante.css';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/app/login/actions'; 
+import Swal from 'sweetalert2';
 
 interface Atraccion {
   id_atraccion: number;
@@ -14,6 +15,34 @@ interface Atraccion {
 export default function AtenderVisitante() {
   const [juegos, setJuegos] = useState<Atraccion[]>([]);
   const router = useRouter();
+
+    
+      // Validación del token para proteger la ruta
+        useEffect(() => {
+          const storedSession = localStorage.getItem('employeeSession');
+          if (!storedSession) {
+            // Si no hay token, redireccionar a la página de inicio
+            router.push('/');
+            return;
+          }
+          try {
+            const session = JSON.parse(storedSession);
+            // Solo el gerente (id_puesto = 3) y el operador (id_puesto = 1) tiene acceso a esta página
+            if (session.id_puesto !== 3 && session.id_puesto !== 1) {
+              Swal.fire({
+                  title: 'Acceso denegado',
+                  text: 'No tienes permiso para acceder a ese módulo',
+                  icon: 'error',
+                  confirmButtonText: 'Ok'
+                }).then(() => {
+                  router.push('/');
+                });
+            }
+          } catch (error) {
+            console.error("Error al parsear el token", error);
+            router.push('/');
+          }
+        }, [router]);
 
   useEffect(() => {
     async function fetchJuegos() {

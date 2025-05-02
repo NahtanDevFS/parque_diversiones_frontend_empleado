@@ -1,0 +1,93 @@
+.salidas-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100vh;
+    background-color: rgba(255, 186, 8, 0.2)
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: rgba(255, 186, 8, 0.2) /* tu color personalizado */
+  }
+  
+  .salidas-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 1000px;
+  }
+  
+  
+  
+  h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .buscador {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .buscador input {
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    width: 80%;
+    max-width: 400px;
+  }
+  
+  .contador-visitantes {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #007bff;
+  }
+  
+  .tabla-container {
+    overflow-x: auto;
+    width: 100%;
+  }
+  
+  .tabla-visitantes {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+  
+  .tabla-visitantes th,
+  .tabla-visitantes td {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .tabla-visitantes th {
+    background-color: #f1f1f1;
+    font-weight: bold;
+  }
+  
+  .tabla-visitantes tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  
+  .boton-salida {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .boton-salida:hover {
+    background-color: #c82333;
+  }

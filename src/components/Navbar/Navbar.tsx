@@ -68,7 +68,12 @@ interface SubMenuItem {
           name: 'Visitantes',
           path: '/seguridad/visitantes',
           icon: <FaUsers />
-        }
+        },
+        {
+          name: 'Control de Visitantes',
+          path: '/seguridad/control-visitante',
+          icon: <FaUsers />
+        },
       ]
     },
     {
@@ -107,6 +112,11 @@ interface SubMenuItem {
           name: 'Ingreso de Eventos',
           path: '/gerente/agregar-evento',
           icon: <FaCalendar />
+        },
+        {
+          name: 'Deshabilitar atracciones',
+          path: '/gerente/deshabilitar-atraccion',
+          icon: <FaFortAwesome />
         }
       ]
     }
