@@ -1,0 +1,174 @@
+/* styles/register.module.css */
+
+.container {
+    background-color: rgba(255, 186, 8, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+  }
+
+  .head {
+    display: flex;
+    margin-top: 10%;
+  }
+  
+  .form {
+    background-color: rgba(255, 186, 8, 0.25);
+    margin-top: 7%;
+    padding: 3rem;
+    border-radius: 8px;
+    box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 5%;
+  }
+  
+  .form h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .form label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.7rem;
+  }
+  
+  .form input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-top: 0.4rem;
+    border: 1px solid rgba(255, 157, 0, 1);
+    border-radius: 4px;
+    font-size: 0.7rem;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    justify-content: center;
+  }
+
+  .form button {
+    width: 60%;
+    padding: 0.8rem;
+    margin-top: 1.5rem;
+    background-color: rgba(255, 157, 0, 1);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  
+  .form button:hover {
+    background-color: rgba(255, 115, 0, 1);
+  }
+  
+  .form p {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .loginLink {
+    color: rgba(255, 115, 0, 1);
+    text-decoration: none;
+  }
+  
+  .loginLink:hover {
+    text-decoration: underline;
+  }
+
+/* burbuja de notificación de puntos */
+.pointsNotif {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background-color: rgba(255, 186, 8, 0.9);
+  color: #333;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+}
+.pointsNotif span {
+  flex: 1;
+  font-size: 0.9rem;
+}
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+.closeButton:hover {
+  color: #000;
+}
+
+
+  @media screen and (max-width: 900px) {
+    .form {
+      margin-top: 25%;
+      max-width: 400px;
+      width: 85%;
+      padding: 2rem;
+    }
+
+    .form h1 {
+      font-size: 1.2rem;
+    }
+
+    .form label {
+      margin-top: 0.7rem;
+      font-size: 0.7rem;
+    }
+
+    .form input {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.7rem;
+    }
+
+    .qrContainer {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .emailButton {
+      width: 60%;
+      padding: 0.8rem;
+      margin-top: 1rem;
+      background-color: rgba(255, 157, 0, 1);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .emailButton:hover {
+      background-color: rgba(255, 115, 0, 1);
+    }
+
+    .successMessage {
+      color: green;
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    
+  }

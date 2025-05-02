@@ -73,12 +73,12 @@ interface SubMenuItem {
     },
     {
       name: 'Vendedor',
-      path: '/vendedor',
+      path: '/taquilla',
       icon: <FaDollarSign />,
       subMenuItems: [
         {
           name: 'Vender Ticket',
-          path: '/vendedor/vender-ticket',
+          path: '/taquilla',
           icon: <FaTicketAlt />
         }
       ]
