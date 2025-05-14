@@ -1,0 +1,129 @@
+/* Fondo y contenedor general */
+.ingreso-modificacion-empleado-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 186, 8, 0.2); /* igual que en evento */
+  padding: 2rem;
+}
+
+/* Contenedor del formulario */
+.ingreso-modificacion-empleado-form {
+  max-width: 500px;
+  width: 100%;
+  margin: 4rem auto;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: rgba(255, 186, 8, 0.3);
+}
+
+/* Título del formulario */
+.ingreso-modificacion-empleado-form-title {
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+/* Etiquetas y campos */
+.ingreso-modificacion-empleado-form label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.ingreso-modificacion-empleado-form input,
+.ingreso-modificacion-empleado-form select,
+.ingreso-modificacion-empleado-form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background-color: #fff;
+}
+
+/* Botones */
+.ingreso-modificacion-empleado-form button {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 4px;
+  background-color: rgb(255, 111, 0); /* naranja */
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.ingreso-modificacion-empleado-form button:hover {
+  background-color: rgb(255, 94, 0);
+}
+
+/* Botón de eliminar */
+.ingreso-modificacion-empleado-form button.eliminar {
+  background-color: #c62828;
+  margin-top: 0.5rem;
+}
+
+.ingreso-modificacion-empleado-form button.eliminar:hover {
+  background-color: #b71c1c;
+}
+
+/* Vista previa de la imagen */
+.ingreso-modificacion-empleado-form img {
+  max-width: 100%;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .ingreso-modificacion-empleado-page {
+    padding: 1.5rem;
+  }
+
+  .ingreso-modificacion-empleado-form {
+    margin: 2rem auto;
+    padding: 1.25rem;
+    max-width: 90%;
+  }
+
+  .ingreso-modificacion-empleado-form button {
+    font-size: 0.95rem;
+    padding: 0.65rem;
+  }
+}
+
+/* Móvil */
+@media (max-width: 480px) {
+  .ingreso-modificacion-empleado-page {
+    padding: 1rem;
+  }
+
+  .ingreso-modificacion-empleado-form {
+    margin: 1rem auto;
+    padding: 1rem;
+    border-width: 1px;
+    border-radius: 4px;
+  }
+
+  .ingreso-modificacion-empleado-form label {
+    font-size: 0.9rem;
+  }
+
+  .ingreso-modificacion-empleado-form input,
+  .ingreso-modificacion-empleado-form textarea,
+  .ingreso-modificacion-empleado-form select {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+  }
+
+  .ingreso-modificacion-empleado-form button {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+}

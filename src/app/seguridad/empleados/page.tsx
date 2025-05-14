@@ -57,8 +57,8 @@ export default function ControlEmpleadosPage() {
           }
           try {
             const session = JSON.parse(storedSession);
-            // Solo el gerente (id_puesto = 3) y el de seguridad (id_puesto = 2) tiene acceso a esta página
-            if (session.id_puesto !== 3 && session.id_puesto !== 2) {
+            // Solo el admin (id_puesto = 6) y el de seguridad (id_puesto = 2) tiene acceso a esta página
+            if (session.id_puesto !== 6 && session.id_puesto !== 2) {
               Swal.fire({
                   title: 'Acceso denegado',
                   text: 'No tienes permiso para acceder a ese módulo',

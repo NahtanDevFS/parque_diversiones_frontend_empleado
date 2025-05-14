@@ -78,7 +78,7 @@
   }
   
   .active > .menuLink, .active > .menuButton {
-    background-color: rgb(255, 147, 58);
+    background-color: rgb(255, 77, 0);
     border-left: 4px solid #ffd000;
   }
   
@@ -104,7 +104,7 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    background-color: rgb(255, 147, 58);
+    background-color: rgb(251, 162, 90);
     overflow: hidden;
     transition: max-height 0.3s ease;
   }
@@ -124,7 +124,7 @@
   }
   
   .subMenu .active .subMenuItem {
-    background-color: rgb(255, 127, 22);
+    background-color: rgb(255, 142, 44);
     color: #fff;
     border-left: 4px solid #ffd000;
   }

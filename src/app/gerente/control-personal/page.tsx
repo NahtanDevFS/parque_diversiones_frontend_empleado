@@ -17,6 +17,7 @@ type Employee = {
   apellido: string;
   empleado_foto: string;
   telefono: string;
+  estado_actividad_empleado: string;
   estado_empleado: string;
   estado_cuenta: number;
   puesto: {
@@ -35,6 +36,9 @@ export default function ControlPersonalPage() {
   const [filterEstadoEmpleado, setFilterEstadoEmpleado] = useState('');
   const [filterEstadoCuenta, setFilterEstadoCuenta] = useState('');
 
+  // Estado para el selector de actividad manual
+    const [selectedStatus, setSelectedStatus] = useState<string>('En el almuerzo');
+
   // Validación del token para proteger la ruta
   useEffect(() => {
     const storedSession = localStorage.getItem('employeeSession');
@@ -45,8 +49,22 @@ export default function ControlPersonalPage() {
     }
     try {
       const session = JSON.parse(storedSession);
-      // Solo el gerente (id_puesto = 3) tiene acceso a esta página
-      if (session.id_puesto !== 3) {
+      const { id_puesto, id_empleado } = session;
+      
+            // Función async para update
+            (async () => {
+              if (id_puesto !== 6) {
+                const { data, error } = await supabase
+                  .from('empleado')
+                  .update({ estado_actividad_empleado: 'En el módulo de control de personal' })
+                  .eq('id_empleado', id_empleado);
+                if (error) console.error('Error al actualizar estado automático:', error);
+                else console.log('Estado automático actualizado:', data);
+              }
+            })();
+
+      // Solo el gerente (id_puesto = 3) y administrador (id_puesto = 6) tiene acceso a esta página
+      if (session.id_puesto !== 3 && session.id_puesto !== 6) {
         MySwal.fire({
             title: 'Acceso denegado',
             text: 'No tienes permiso para acceder a ese módulo',
@@ -62,12 +80,24 @@ export default function ControlPersonalPage() {
     }
   }, [router]);
 
+    // Handler para actualizar estado desde el combobox
+    const handleStatusUpdate = async () => {
+      const stored = localStorage.getItem('employeeSession');
+      if (!stored) return;
+      const session = JSON.parse(stored);
+      await supabase
+        .from('empleado')
+        .update({ estado_actividad_empleado: selectedStatus })
+        .eq('id_empleado', session.id_empleado);
+      MySwal.fire('Éxito', 'Estado actualizado a ' + selectedStatus, 'success');
+    };
+
   useEffect(() => {
     async function fetchEmployees() {
       const { data, error } = await supabase
         .from('empleado')
         .select(
-          'id_empleado, nombre, apellido, empleado_foto, telefono, estado_empleado, estado_cuenta, puesto(nombre), fecha_contratacion, email'
+          'id_empleado, nombre, apellido, empleado_foto, telefono, estado_actividad_empleado, estado_empleado, estado_cuenta, puesto(nombre), fecha_contratacion, email'
         );
       if (error) {
         console.error("Error al obtener empleados:", error);
@@ -263,6 +293,21 @@ export default function ControlPersonalPage() {
     <LayoutWithSidebar>
       <div className="control_personal_page">
         <div className="control_personal_container">
+          {/*SELECCIÓN DE ESTADO*/}
+          <div className="estado-row">
+            <h4>Acciones para notificar cese de actividades:</h4>
+            <select
+              value={selectedStatus}
+              onChange={e => setSelectedStatus(e.target.value)}
+            >
+              <option value="En el almuerzo">En el almuerzo</option>
+              <option value="Turno cerrado">Turno cerrado</option>
+            </select>
+            <button onClick={handleStatusUpdate} className="button_ventas">
+              Actualizar estado
+            </button>
+          </div>
+
           <h1>Panel de Visualización y Control de Acceso del Personal</h1>
           {/* Barra de búsqueda y filtros */}
           <div className="search_filters_container">
@@ -339,6 +384,9 @@ export default function ControlPersonalPage() {
                       <strong>Asistencia:</strong> {employee.estado_empleado}
                     </p>
                     <p>
+                      <strong>Estado:</strong> {employee.estado_actividad_empleado}
+                    </p>
+                    <p>
                       <strong>Teléfono:</strong> {employee.telefono}
                     </p>
                     <p>
@@ -356,12 +404,12 @@ export default function ControlPersonalPage() {
                   >
                     Generar reporte de asistencias
                   </button>
-                  <button
+                  {/*<button
                     className="employee_control_button"
                     onClick={() => handleToggleAccount(employee)}
                   >
                     {employee.estado_cuenta === 1 ? "Desactivar cuenta" : "Activar cuenta"}
-                  </button>
+                  </button>*/}
                 </div>
               </div>
             ))}

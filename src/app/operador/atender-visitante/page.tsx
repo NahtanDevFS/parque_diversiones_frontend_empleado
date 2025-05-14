@@ -27,8 +27,8 @@ export default function AtenderVisitante() {
           }
           try {
             const session = JSON.parse(storedSession);
-            // Solo el gerente (id_puesto = 3) y el operador (id_puesto = 1) tiene acceso a esta página
-            if (session.id_puesto !== 3 && session.id_puesto !== 1) {
+            // Solo el admin (id_puesto = 6) y el operador (id_puesto = 1) tiene acceso a esta página
+            if (session.id_puesto !== 6 && session.id_puesto !== 1) {
               Swal.fire({
                   title: 'Acceso denegado',
                   text: 'No tienes permiso para acceder a ese módulo',

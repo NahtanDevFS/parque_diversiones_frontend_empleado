@@ -17,6 +17,37 @@
     width: 80%;
     box-sizing: border-box;
   }
+
+
+
+/* Fila de combobox y botón de estado */
+.estado-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.estado-row select,
+.estado-row button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.estado-row button {
+  background-color: rgba(255, 157, 0, 1);
+}
+
+
+
+.estado-row select:focus,
+.estado-row button:focus {
+  outline: none;
+  border-color: rgba(255, 115, 0, 1);
+}
   
 .section-resumen-ventas-buttons {
     margin-top: 10px;
@@ -74,6 +105,10 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
   
+  .summary-filters {
+    flex-direction: column;
+  }
+
 .button_ventas {
     margin: 0 10px;
     padding: 10px 20px;
@@ -181,6 +216,14 @@
     height: 450px;
     position: relative;
   }
+
+  .summary-filter-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+  }
   
   /* Media queries para hacer responsive */
   @media (max-width: 1024px) {
@@ -203,6 +246,17 @@
     }
     header h1 {
       font-size: 1.8rem;
+    }
+    .summary-filter-buttons {
+      align-items: center;
+    }
+
+    
+    .estado-row {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 80%;
     }
   }
   
@@ -229,5 +283,88 @@
     .card {
       width: 100%;
     }
+    .summary-filter-buttons {
+      flex-direction: column;
+    }
+    .summary-filter-buttons button {
+      width: 100%;
+      margin: 5px 0;
+      align-items: center;
+    }
   }
   
+
+  .cards-type-summary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  gap: 20px;
+}
+
+.cards-type-summary h1 {
+  font-size: 2rem;
+}
+
+.card-type_general-card {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  gap: 20px;
+  flex-direction: row;
+}
+
+.card-type {
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  flex: 1;
+  text-align: center;
+}
+
+.juegos-card {
+  background-color: rgba(100,149,237,0.5); /* azul cornflower */
+}
+.completo-card {
+  background-color: rgba(60,179,113,0.5); /* verde medium sea */
+}
+.entrada-card {
+  background-color: rgba(255,99,71,0.5); /* rojo tomate */
+}
+
+.card-type h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+  color: rgba(255, 115, 0, 1);
+}
+
+.card-type p {
+  font-size: 1.2rem;
+  color: #222;
+  margin: 5px 0;
+}
+
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .card-type {
+    flex: 1 1 calc(50% - 20px);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .card-type_general-card {
+    flex-direction: column;
+  }
+  .card-type {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}

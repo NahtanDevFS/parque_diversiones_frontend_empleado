@@ -55,7 +55,24 @@
     margin-bottom: 1rem;
     text-align: center;
   }
+
+  .form-container select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .form-container button[type="button"] {
+    background-color: #d32f2f;
+    color: white;
+  }
   
+  .form-container button[type="button"]:hover {
+    background-color: #ff2c2c;
+  }
+
   /* Tablet: pantallas ≤ 768px */
   @media (max-width: 768px) {
     .agregar-evento-page {

@@ -5,65 +5,125 @@ import './ingresos_ventas.css';
 import LayoutWithSidebar from '@/components/LayoutWithSidebar';
 import TicketChart from '@/components/TicketChart';
 import { supabase } from './actions';
-import { jsPDF } from "jspdf"; // Importar jsPDF
+import { jsPDF } from "jspdf";
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
-
 type Ticket = {
   precio: number;
   fecha_compra: string;
 };
 
+type SummaryFilter = 'today' | 'month' | 'year' | 'custom';
+
+type ChartFilter = 'week' | 'month' | 'year' | 'custom';
+
+
 export default function Ingresos_ventas_page() {
   const router = useRouter();
 
-  // Estados para el resumen (filtros: hoy, último mes, último año)
+  // Estado para el selector de actividad manual
+  const [selectedStatus, setSelectedStatus] = useState<string>('En el almuerzo');
+
+  // Filtros resumen y gráfica
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [summaryFilter, setSummaryFilter] = useState<'today' | 'month' | 'year'>('today');
-
-  // Estados para la gráfica (filtros: última semana, último mes, último año)
+  const [summaryFilter, setSummaryFilter] = useState<SummaryFilter>('today');
   const [chartTickets, setChartTickets] = useState<Ticket[]>([]);
-  const [chartFilter, setChartFilter] = useState<'week' | 'month' | 'year'>('week');
+  const [chartFilter, setChartFilter] = useState<ChartFilter>('week');
 
-  // Estados para los totales de los cards
-  const [dayTotal, setDayTotal] = useState<number>(0);
-  const [monthTotal, setMonthTotal] = useState<number>(0);
-  const [annualTotal, setAnnualTotal] = useState<number>(0);
+  // Rango personalizado resumen
+  const [customStartDate, setCustomStartDate] = useState<string>('');
+  const [customEndDate, setCustomEndDate] = useState<string>('');
 
-  // Validación del token para proteger la ruta
-    useEffect(() => {
-      const storedSession = localStorage.getItem('employeeSession');
-      if (!storedSession) {
-        // Si no hay token, redireccionar a la página de inicio
-        router.push('/');
-        return;
-      }
-      try {
-        const session = JSON.parse(storedSession);
-        // Solo el gerente (id_puesto = 3) tiene acceso a esta página
-        if (session.id_puesto !== 3) {
-           MySwal.fire({
-            title: 'Acceso denegado',
-            text: 'No tienes permiso para acceder a ese módulo',
-            icon: 'error',
-            confirmButtonText: 'Ok'
-          }).then(() => {
-            router.push('/');
-          });
+    // Rango personalizado gráfica
+  const [customChartStart, setCustomChartStart] = useState<string>('');
+  const [customChartEnd, setCustomChartEnd] = useState<string>('');
+
+  // Totales monetarios
+  const [dayTotal,setDayTotal]=useState(0);
+  const [monthTotal,setMonthTotal]=useState(0);
+  const [annualTotal,setAnnualTotal]=useState(0);
+
+  // Conteos por tipo
+  const [dayTypeCounts,setDayTypeCounts]=useState<Record<string,number>>({});
+  const [monthTypeCounts,setMonthTypeCounts]=useState<Record<string,number>>({});
+  const [annualTypeCounts,setAnnualTypeCounts]=useState<Record<string,number>>({});
+
+  // Validación sesión
+  useEffect(()=>{
+    const stored=localStorage.getItem('employeeSession');
+    if(!stored) return void router.push('/');
+    try{
+      const session=JSON.parse(stored);
+      const { id_puesto, id_empleado } = session;
+
+      // Función async para update
+      (async () => {
+        if (id_puesto !== 6) {
+          const { data, error } = await supabase
+            .from('empleado')
+            .update({ estado_actividad_empleado: 'En el módulo de ventas' })
+            .eq('id_empleado', id_empleado);
+          if (error) console.error('Error al actualizar estado automático:', error);
+          else console.log('Estado automático actualizado:', data);
         }
-      } catch (error) {
-        console.error("Error al parsear el token", error);
-        router.push('/');
-      }
-    }, [router]);
+      })();
 
-  // Función para consultar datos del resumen según el filtro seleccionado
-  const fetchTickets = async (filter: 'today' | 'month' | 'year') => {
+      // Control de acceso
+      if(session.id_puesto!==3&&session.id_puesto!==6){
+        MySwal.fire({
+          title:'Acceso denegado',
+          text:'No tienes permiso para acceder a este módulo',
+          icon:'error',
+          confirmButtonText:'Ok'
+        }).then(()=>router.push('/'));
+      }
+    }catch{router.push('/');}
+  },[router]);
+
+  // Handler para actualizar estado desde el combobox
+  const handleStatusUpdate = async () => {
+    const stored = localStorage.getItem('employeeSession');
+    if (!stored) return;
+    const session = JSON.parse(stored);
+    await supabase
+      .from('empleado')
+      .update({ estado_actividad_empleado: selectedStatus })
+      .eq('id_empleado', session.id_empleado);
+    MySwal.fire('Éxito', 'Estado actualizado a ' + selectedStatus, 'success');
+  };
+
+  // Fetch totales + conteos
+  const fetchTotalsWithCounts=async(range:'day'|'month'|'year')=>{
+    const now=new Date();
+    let start:Date;
+    if(range==='day') start=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    else if(range==='month') start=new Date(now.getFullYear(),now.getMonth()-1,now.getDate());
+    else start=new Date(now.getFullYear()-1,now.getMonth(),now.getDate());
+
+    const { data, error } = await supabase
+      .from('ticket')
+      .select('precio, tipo_ticket')
+      .gte('fecha_compra', start.toISOString());
+    if(error){ console.error(error); return; }
+
+    const total=(data as any[]).reduce((s,t)=>s+t.precio,0);
+    const counts=(data as any[]).reduce<Record<string,number>>((acc,t)=>{
+      const tipo=t.tipo_ticket||'desconocido'; acc[tipo]=(acc[tipo]||0)+1; return acc;
+    },{});
+
+    if(range==='day'){ setDayTotal(total); setDayTypeCounts(counts); }
+    if(range==='month'){ setMonthTotal(total); setMonthTypeCounts(counts); }
+    if(range==='year'){ setAnnualTotal(total); setAnnualTypeCounts(counts); }
+  };
+
+  // Fetch resumen
+  const fetchTickets = async (filter: SummaryFilter) => {
     let startDate: Date;
+    let endDate: Date | undefined;
     const now = new Date();
     switch (filter) {
       case 'today':
@@ -75,24 +135,32 @@ export default function Ingresos_ventas_page() {
       case 'year':
         startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
         break;
-      default:
-        startDate = new Date();
+      case 'custom':
+        if (!customStartDate || !customEndDate) {
+          Swal.fire('Rango inválido', 'Por favor selecciona ambas fechas', 'warning');
+          return;
+        }
+        startDate = new Date(customStartDate);
+        endDate = new Date(customEndDate);
+        // Extiende hasta fin de día
+        endDate.setHours(23, 59, 59, 999);
+        break;
     }
-    const { data, error } = await supabase
-      .from('ticket')
-      .select('precio, fecha_compra')
-      .gte('fecha_compra', startDate.toISOString());
-    if (error) {
-      console.error(error);
-    } else {
-      setTickets(data as Ticket[]);
+
+    let query = supabase.from('ticket').select('precio, fecha_compra').gte('fecha_compra', startDate.toISOString());
+    if (endDate) {
+      query = query.lte('fecha_compra', endDate.toISOString());
     }
+    const { data } = await query;
+    if (data) setTickets(data as Ticket[]);
   };
 
-  // Función para consultar datos para la gráfica según el filtro seleccionado
-  const fetchChartTickets = async (filter: 'week' | 'month' | 'year') => {
+  // Fetch gráfica
+  const fetchChartTickets = async (filter: ChartFilter) => {
     let startDate: Date;
+    let endDate: Date | undefined;
     const now = new Date();
+
     switch (filter) {
       case 'week':
         startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
@@ -103,151 +171,71 @@ export default function Ingresos_ventas_page() {
       case 'year':
         startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
         break;
-      default:
-        startDate = new Date();
+      case 'custom':
+        if (!customChartStart || !customChartEnd) {
+          Swal.fire('Rango inválido', 'Selecciona ambas fechas', 'warning');
+          return;
+        }
+        startDate = new Date(customChartStart);
+        endDate = new Date(customChartEnd);
+        endDate.setHours(23, 59, 59, 999);
+        break;
     }
-    const { data, error } = await supabase
-      .from('ticket')
-      .select('precio, fecha_compra')
-      .gte('fecha_compra', startDate.toISOString());
-    if (error) {
-      console.error(error);
-    } else {
-      setChartTickets(data as Ticket[]);
-    }
+
+    let query = supabase.from('ticket').select('precio, fecha_compra').gte('fecha_compra', startDate.toISOString());
+    if (endDate) query = query.lte('fecha_compra', endDate.toISOString());
+
+    const { data } = await query;
+    if (data) setChartTickets(data as Ticket[]);
   };
 
-  // Función para consultar el total de ventas del día
-  const fetchDailyTotal = async () => {
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const { data, error } = await supabase
-      .from('ticket')
-      .select('precio')
-      .gte('fecha_compra', startOfDay.toISOString());
-    if (error) {
-      console.error(error);
-    } else {
-      const total = (data as Ticket[]).reduce((sum, ticket) => sum + ticket.precio, 0);
-      setDayTotal(total);
-    }
-  };
 
-  // Función para consultar el total de ventas del último mes
-  const fetchMonthlyTotal = async () => {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-    const { data, error } = await supabase
-      .from('ticket')
-      .select('precio')
-      .gte('fecha_compra', startOfMonth.toISOString());
-    if (error) {
-      console.error(error);
-    } else {
-      const total = (data as Ticket[]).reduce((sum, ticket) => sum + ticket.precio, 0);
-      setMonthTotal(total);
-    }
-  };
+  useEffect(()=>{ fetchTickets(summaryFilter); },[summaryFilter]);
+  useEffect(()=>{ fetchChartTickets(chartFilter); },[chartFilter]);
+  useEffect(()=>{
+    fetchTotalsWithCounts('day');
+    fetchTotalsWithCounts('month');
+    fetchTotalsWithCounts('year');
+  },[]);
 
-  // Función para consultar el total de ventas del último año
-  const fetchAnnualTotal = async () => {
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-    const { data, error } = await supabase
-      .from('ticket')
-      .select('precio')
-      .gte('fecha_compra', startOfYear.toISOString());
-    if (error) {
-      console.error(error);
-    } else {
-      const total = (data as Ticket[]).reduce((sum, ticket) => sum + ticket.precio, 0);
-      setAnnualTotal(total);
-    }
-  };
-
-  useEffect(() => {
-    fetchTickets(summaryFilter);
-  }, [summaryFilter]);
-
-  useEffect(() => {
-    fetchChartTickets(chartFilter);
-  }, [chartFilter]);
-
-  useEffect(() => {
-    // Consultar totales para los cards al montar el componente
-    fetchDailyTotal();
-    fetchMonthlyTotal();
-    fetchAnnualTotal();
-  }, []);
-
-  // Agrupamos los datos por fecha para el resumen
-  const aggregatedSummary = tickets.reduce((acc: { [key: string]: number }, ticket) => {
-    const date = new Date(ticket.fecha_compra).toLocaleDateString();
-    if (!acc[date]) {
-      acc[date] = 0;
-    }
-    acc[date] += ticket.precio;
+  // — agrupar por fecha para lista y gráfica
+  const aggregatedSummary = tickets.reduce((acc: Record<string, number>, t) => {
+    const d = new Date(t.fecha_compra).toLocaleDateString();
+    acc[d] = (acc[d] || 0) + t.precio;
     return acc;
   }, {});
 
-  // Agrupamos los datos por fecha para la gráfica
-  const aggregatedChart = chartTickets.reduce((acc: { [key: string]: number }, ticket) => {
-    const date = new Date(ticket.fecha_compra).toLocaleDateString();
-    if (!acc[date]) {
-      acc[date] = 0;
-    }
-    acc[date] += ticket.precio;
+  const aggregatedChart = chartTickets.reduce((acc: Record<string, number>, t) => {
+    const d = new Date(t.fecha_compra).toLocaleDateString();
+    acc[d] = (acc[d] || 0) + t.precio;
     return acc;
   }, {});
 
-  // Función para exportar el resumen a PDF según el filtro seleccionado
+  // — exportar resumen a PDF
   const handleExportPDF = () => {
     const doc = new jsPDF();
-
-    const watermark_logo_Base64 = "/marca_agua_logo_circular.png";
-
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-
-    // Definir un tamaño más pequeño para la imagen
-    const imageWidth = 180;  // Puedes ajustar el tamaño según lo necesites
-    const imageHeight = 180;
-
-    // Calcular la posición para centrar la imagen en la página
-    const xPos = (pageWidth - imageWidth) / 2;
-    const yPos = (pageHeight - imageHeight) / 2;
-
-    // Agrega la imagen como marca de agua de fondo:
-    doc.addImage(
-      watermark_logo_Base64,
-      "PNG",         // Tipo de imagen
-      xPos,             // Coordenada X
-      yPos,             // Coordenada Y
-      imageWidth,     // Ancho para cubrir la página
-      imageHeight,    // Altura para cubrir la página
-      "",            // Alias (opcional)
-      "FAST"         // Opcional: modo de renderizado
-    );
+    const watermark = "/marca_agua_logo_circular.png";
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
+    const iw = 180, ih = 180;
+    doc.addImage(watermark, "PNG", (pw - iw) / 2, (ph - ih) / 2, iw, ih, "", "FAST");
 
     let title = '';
-    if (summaryFilter === 'today') {
-      title = 'Resumen de ventas del día';
-    } else if (summaryFilter === 'month') {
-      title = 'Resumen de ventas del último mes';
-    } else if (summaryFilter === 'year') {
-      title = 'Resumen de ventas del último año';
+    switch (summaryFilter) {
+      case 'today': title = 'Resumen de ventas del día'; break;
+      case 'month': title = 'Resumen de ventas del último mes'; break;
+      case 'year': title = 'Resumen de ventas del último año'; break;
+      case 'custom': title = `Resumen de ventas de ${customStartDate} a ${customEndDate}`; break;
     }
-    // Título del PDF
+
     doc.setFontSize(18);
     doc.text(title, 10, 20);
     doc.setFontSize(12);
-    let yPosition = 30;
-    // Agregar cada línea del resumen
+    let y = 30;
     Object.entries(aggregatedSummary).forEach(([date, total]) => {
-      doc.text(`${date}: Q ${total}.00`, 10, yPosition);
-      yPosition += 10;
+      doc.text(`${date}: Q ${total}.00`, 10, y);
+      y += 10;
     });
-    // Guardar el documento
     doc.save(`${title}.pdf`);
   };
 
@@ -255,9 +243,24 @@ export default function Ingresos_ventas_page() {
     <LayoutWithSidebar>
       <div className="ingresos_ventas_page">
         <div className="dashboard">
+          {/*SELECCIÓN DE ESTADO*/}
+          <div className="estado-row">
+            <h4>Acciones para notificar cese de actividades:</h4>
+            <select
+              value={selectedStatus}
+              onChange={e => setSelectedStatus(e.target.value)}
+            >
+              <option value="En el almuerzo">En el almuerzo</option>
+              <option value="Turno cerrado">Turno cerrado</option>
+            </select>
+            <button onClick={handleStatusUpdate} className="button_ventas">
+              Actualizar estado
+            </button>
+          </div>
+
           <h1>Panel de Ventas de Tickets</h1>
 
-          {/* Sección de Cards con totales */}
+          {/* Cards de Montos */}
           <section className="cards-summary">
             <div className="card">
               <h3>Ventas del Día</h3>
@@ -273,27 +276,73 @@ export default function Ingresos_ventas_page() {
             </div>
           </section>
 
-          <section className='section-resumen-ventas-buttons'>
-            <div className="summary-filters">
-              <button onClick={() => setSummaryFilter('today')} className={summaryFilter === 'today' ? 'active' : 'button_ventas'}>
-                Hoy
-              </button>
-              <button onClick={() => setSummaryFilter('month')} className={summaryFilter === 'month' ? 'active' : 'button_ventas'}>
-                Último Mes
-              </button>
-              <button onClick={() => setSummaryFilter('year')} className={summaryFilter === 'year' ? 'active' : 'button_ventas'}>
-                Último Año
-              </button>
+          {/* Cards por Tipo de Ticket */}
+          <section className="cards-type-summary">
+            <h1>Cantidad de tickets vendidos por tipo</h1>
+            <div className='card-type_general-card'>
+              <div className="card-type juegos-card">
+                <h3>Juegos</h3>
+                <p>Hoy: {dayTypeCounts.juegos||0}</p>
+                <p>Mes: {monthTypeCounts.juegos||0}</p>
+                <p>Año: {annualTypeCounts.juegos||0}</p>
+              </div>
+              <div className="card-type completo-card">
+                <h3>Completo</h3>
+                <p>Hoy: {dayTypeCounts.completo||0}</p>
+                <p>Mes: {monthTypeCounts.completo||0}</p>
+                <p>Año: {annualTypeCounts.completo||0}</p>
+              </div>
+              <div className="card-type entrada-card">
+                <h3>Entrada</h3>
+                <p>Hoy: {dayTypeCounts.entrada||0}</p>
+                <p>Mes: {monthTypeCounts.entrada||0}</p>
+                <p>Año: {annualTypeCounts.entrada||0}</p>
+              </div>
             </div>
           </section>
 
+          {/* — BOTONES DE FILTRO */}
+          <section className='section-resumen-ventas-buttons'>
+            <h1>Resumen de Ventas de tickets</h1>
+            <div className="summary-filters">
+              <h2>Filtrar resumen de ventas por:</h2>
+              <div className='summary-filter-buttons'>
+                <button onClick={() => setSummaryFilter('today')} className={summaryFilter === 'today' ? 'active' : 'button_ventas'}>
+                  Hoy
+                </button>
+                <button onClick={() => setSummaryFilter('month')} className={summaryFilter === 'month' ? 'active' : 'button_ventas'}>
+                  Último Mes
+                </button>
+                <button onClick={() => setSummaryFilter('year')} className={summaryFilter === 'year' ? 'active' : 'button_ventas'}>
+                  Último Año
+                </button>
+                <button onClick={() => setSummaryFilter('custom')} className={summaryFilter === 'custom' ? 'active' : 'button_ventas'}>Personalizado</button>
+              </div>
+                {summaryFilter === 'custom' && (
+                  <div className="custom-date-range">
+                    <input
+                      type="date"
+                      value={customStartDate}
+                      onChange={e => setCustomStartDate(e.target.value)}
+                    />
+                    <input
+                      type="date"
+                      value={customEndDate}
+                      onChange={e => setCustomEndDate(e.target.value)}
+                    />
+                    <button onClick={() => fetchTickets('custom')} className="button_ventas">Aplicar</button>
+                  </div>
+                )}
+            </div>
+          </section>
 
+          {/* — LISTADO DE RESUMEN */}
           <section className="summary">
             <h2>Resumen de Ventas</h2>
             <ul>
               {Object.entries(aggregatedSummary).map(([date, total]) => (
-                <li key={date} className='summary-item'>
-                  <span>{date}: </span>
+                <li key={date}>
+                  <span>{date}:</span>
                   <span>Q {total}.00</span>
                 </li>
               ))}
@@ -303,21 +352,22 @@ export default function Ingresos_ventas_page() {
             </div>
           </section>
 
-          
-
+          {/* — GRÁFICA DE VENTAS */}
           <section className="chart-section">
             <h2>Gráfica de Ventas</h2>
             <div className="chart-filters">
-              <button onClick={() => setChartFilter('week')} className={chartFilter === 'week' ? 'active' : 'button_ventas'}>
-                Última Semana
-              </button>
-              <button onClick={() => setChartFilter('month')} className={chartFilter === 'month' ? 'active' : 'button_ventas'}>
-                Último Mes
-              </button>
-              <button onClick={() => setChartFilter('year')} className={chartFilter === 'year' ? 'active' : 'button_ventas'}>
-                Último Año
-              </button>
+              <button onClick={() => setChartFilter('week')} className={chartFilter === 'week' ? 'active' : 'button_ventas'}>Última Semana</button>
+              <button onClick={() => setChartFilter('month')} className={chartFilter === 'month' ? 'active' : 'button_ventas'}>Último Mes</button>
+              <button onClick={() => setChartFilter('year')} className={chartFilter === 'year' ? 'active' : 'button_ventas'}>Último Año</button>
+              <button onClick={() => setChartFilter('custom')} className={chartFilter === 'custom' ? 'active' : 'button_ventas'}>Personalizado</button>
             </div>
+              {chartFilter === 'custom' && (
+                <div className="custom-date-range">
+                  <input type="date" value={customChartStart} onChange={e => setCustomChartStart(e.target.value)} />
+                  <input type="date" value={customChartEnd} onChange={e => setCustomChartEnd(e.target.value)} />
+                  <button onClick={() => fetchChartTickets('custom')} className="button_ventas">Aplicar</button>
+                </div>
+              )}
             <div className="chart">
               <TicketChart data={aggregatedChart} />
             </div>

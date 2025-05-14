@@ -1,0 +1,222 @@
+.historial_mantenimiento_page {
+    background-color: rgba(255, 186, 8, 0.2);
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Fila de combobox y botón de estado */
+.estado-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.estado-row select,
+.estado-row button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.estado-row button {
+  background-color: rgba(255, 157, 0, 1);
+}
+
+  
+  .titulo_reporte {
+    font-size: 2rem;
+    color: rgba(255, 115, 0, 1);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    width: 80%;
+  }
+  
+  .card-mantenimiento {
+    background-color: rgba(255, 186, 8, 0.5);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 320px;
+    text-align: center;
+  }
+  
+  .img-atraccion {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .card-mantenimiento h3 {
+    font-size: 1.4rem;
+    color: rgba(255, 115, 0, 1);
+    margin-bottom: 5px;
+  }
+  
+  .estado-atraccion-mantenimiento {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: #333;
+  }
+
+  .filtro-mantenimiento-title {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 15px;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .estado-funcional {
+    color: rgb(3, 186, 3);
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  .estado-mantenimiento {
+    color: red;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  .card-mantenimiento select,
+  .card-mantenimiento input[type='date'] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin: 5px 0;
+    width: 100%;
+  }
+  
+  .export-btn {
+    margin-top: 10px;
+    background-color: rgba(255, 115, 0, 1);
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .export-btn:hover {
+    background-color: rgba(255, 94, 0, 1);
+  }
+  
+  .historial-lista {
+    margin-top: 15px;
+    text-align: left;
+    background-color: #fff6e5;
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .historial-lista h4 {
+    color: rgba(255, 115, 0, 1);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+  
+  .historial-lista ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .historial-lista li {
+    background-color: rgba(255, 186, 8, 0.3);
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .mantenimiento-preventivo {
+    background-color: #d4fcd4;
+    border-left: 5px solid green;
+  }
+  
+  .mantenimiento-correctivo {
+    background-color: #ffe1e1;
+    border-left: 5px solid red;
+  }
+  
+  .mantenimiento-reparacion {
+    background-color: #e1ecff;
+    border-left: 5px solid blue;
+  }
+  
+  @media (max-width: 768px) {
+    .cards-container {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .card-mantenimiento {
+      width: 90%;
+      max-width: 400px;
+    }
+  
+    .titulo_reporte {
+      font-size: 1.6rem;
+    }
+  
+    .card-mantenimiento h3 {
+      font-size: 1.2rem;
+    }
+  
+    .historial-lista li {
+      font-size: 0.9rem;
+    }
+
+    .estado-row {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 80%;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .card-mantenimiento {
+      padding: 15px;
+    }
+  
+    .export-btn {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+  
+    .card-mantenimiento select,
+    .card-mantenimiento input[type='date'] {
+      font-size: 0.9rem;
+    }
+  
+    .historial-lista h4 {
+      font-size: 1rem;
+    }
+  
+    .historial-lista li {
+      font-size: 0.85rem;
+    }
+  }
+  

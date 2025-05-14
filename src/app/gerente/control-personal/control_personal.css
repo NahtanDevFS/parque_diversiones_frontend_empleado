@@ -28,6 +28,28 @@
     margin-top: 1%;
   }
   
+
+  .estado-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.estado-row select,
+.estado-row button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.estado-row button {
+  background-color: rgba(255, 157, 0, 1);
+}
+
+
   /* Estilos para cada tarjeta de empleado */
   .employee_card {
     background-color: rgba(255, 255, 255, 0.8);
@@ -175,6 +197,13 @@
     .search_filters_container input[type="text"],
     .search_filters_container select {
       width: 100%;
+    }
+
+    .estado-row {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 75%;
     }
   }
   

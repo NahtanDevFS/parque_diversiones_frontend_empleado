@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './navbar.module.css';
-import { FaHome, FaUserTie, FaTools, FaLock, FaDollarSign, FaCrown, FaUsers, FaCar, FaTicketAlt, FaChartBar, FaSignOutAlt, FaCalendar, FaFortAwesome  } from 'react-icons/fa';
+import { FaHome, FaUserTie, FaTools, FaLock, FaDollarSign, FaCrown, FaUsers, FaCar, FaTicketAlt, FaChartBar, FaSignOutAlt, FaCalendar, FaFortAwesome, FaUserShield   } from 'react-icons/fa';
 
 interface SubMenuItem {
     name: string;
@@ -50,7 +50,7 @@ interface SubMenuItem {
       ]
     },
     {
-      name: 'Seguridad',
+      name: 'Control de acceso',
       path: '/seguridad',
       icon: <FaLock />,
       subMenuItems: [
@@ -104,18 +104,45 @@ interface SubMenuItem {
           icon: <FaUsers />
         },
         {
-          name: 'Ingreso de Atracciones',
-          path: '/gerente/agregar-atraccion',
+          name: 'Reporte de uso de atracciones',
+          path: '/gerente/reporte-atraccion',
           icon: <FaFortAwesome />
         },
         {
-          name: 'Ingreso de Eventos',
-          path: '/gerente/agregar-evento',
+          name: 'Reporte de ingreso de visitantes',
+          path: '/gerente/reporte-visitantes',
+          icon: <FaUsers />
+        },
+        {
+          name: 'Reporte de mantenimiento de atracciones',
+          path: '/gerente/reporte-mantenimiento-atracciones',
+          icon: <FaFortAwesome />
+        }
+      ]
+    },
+    {
+      name: 'Administrador',
+      path: '/administrador',
+      icon: <FaUserShield  />,
+      subMenuItems: [
+        {
+          name: 'Ingreso/modificación de Atracciones',
+          path: '/administrador/agregar-atraccion',
+          icon: <FaFortAwesome />
+        },
+        {
+          name: 'Ingreso/modificación de Eventos',
+          path: '/administrador/agregar-evento',
           icon: <FaCalendar />
         },
         {
+          name: 'Ingreso/modificación de Empleados',
+          path: '/administrador/agregar-modificar-empleado',
+          icon: <FaUsers />
+        },
+        {
           name: 'Deshabilitar atracciones',
-          path: '/gerente/deshabilitar-atraccion',
+          path: '/administrador/deshabilitar-atraccion',
           icon: <FaFortAwesome />
         }
       ]
@@ -127,7 +154,39 @@ interface SubMenuItem {
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const pathname = usePathname();
     const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
-  
+
+    const [puestoId, setPuestoId] = useState<number | null>(null);
+
+    // Cargar puesto desde localStorage
+    useEffect(() => {
+      const session = localStorage.getItem('employeeSession');
+      if (session) {
+        try {
+          const parsed = JSON.parse(session);
+          setPuestoId(parsed.id_puesto);
+        } catch (err) {
+          console.error("Error parsing employeeSession:", err);
+        }
+      }
+    }, []);
+
+    // Definir permisos por rol
+    const accessByRole: Record<number, string[]> = {
+      1: ['Operador'],
+      2: ['Control de acceso'],
+      3: ['Gerente'],
+      4: ['Vendedor'],
+      5: ['Mantenimiento'],
+      6: ['Operador', 'Mantenimiento', 'Control de acceso', 'Vendedor', 'Gerente', 'Administrador'], // Admin todo
+    };
+
+    // Filtrar ítems de menú según id_puesto
+    const filteredMenuItems = puestoId
+      ? menuItems.filter((item) =>
+          item.name === 'Inicio' || accessByRole[puestoId]?.includes(item.name)
+        )
+      : [];
+      
     // Detectar tamaño de pantalla
     useEffect(() => {
       const handleResize = () => {
@@ -196,7 +255,7 @@ interface SubMenuItem {
             </div>
             
             <ul className={styles.menuList}>
-              {menuItems.map((item) => (
+              {filteredMenuItems.map((item) => (
                 <li key={item.name} className={`${styles.menuItem} ${isActive(item.path) ? styles.active : ''}`}>
                   {item.subMenuItems ? (
                     <>

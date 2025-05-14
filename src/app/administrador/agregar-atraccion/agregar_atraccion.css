@@ -1,0 +1,128 @@
+/* Contenedor general */
+.gestionar-atraccion-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 186, 8, 0.2);
+  padding: 2rem;
+}
+
+/* Formulario */
+.form-gestionar {
+  max-width: 500px;
+  width: 100%;
+  margin: 4rem auto;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: rgba(255, 186, 8, 0.3);
+}
+
+/* Título */
+.form-gestionar-title {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+/* Etiquetas y campos */
+.form-gestionar label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-gestionar input,
+.form-gestionar select,
+.form-gestionar textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background-color: #fff;
+}
+
+/* Botones */
+.form-gestionar button {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 4px;
+  background-color: rgb(255, 111, 0);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.form-gestionar button:hover {
+  background-color: rgb(255, 94, 0);
+}
+
+/* Botón eliminar (si se usa) */
+.form-gestionar button.eliminar {
+  background-color: #c62828;
+  margin-top: 0.5rem;
+}
+
+.form-gestionar button.eliminar:hover {
+  background-color: #b71c1c;
+}
+
+/* Vista previa de imagen */
+.form-gestionar img {
+  max-width: 100%;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+}
+
+/* Responsive Tablet */
+@media (max-width: 768px) {
+  .gestionar-atraccion-page {
+    padding: 1.5rem;
+  }
+
+  .form-gestionar {
+    margin: 2rem auto;
+    padding: 1.25rem;
+    max-width: 90%;
+  }
+
+  .form-gestionar button {
+    font-size: 0.95rem;
+    padding: 0.65rem;
+  }
+}
+
+/* Responsive Móvil */
+@media (max-width: 480px) {
+  .gestionar-atraccion-page {
+    padding: 1rem;
+  }
+
+  .form-gestionar {
+    margin: 1rem auto;
+    padding: 1rem;
+    border-radius: 4px;
+  }
+
+  .form-gestionar label {
+    font-size: 0.9rem;
+  }
+
+  .form-gestionar input,
+  .form-gestionar select,
+  .form-gestionar textarea {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+  }
+
+  .form-gestionar button {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+}

@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import './home.css';
 import LayoutWithSidebar from '@/components/LayoutWithSidebar';
 import { useRouter } from "next/navigation";
+import { supabase } from './actions';
+import Swal from 'sweetalert2';
 
 export default function Home() {
   const router = useRouter();
@@ -15,6 +17,28 @@ export default function Home() {
       router.push("/login");
     }
   }, [router]);
+
+  // Validación sesión
+    useEffect(()=>{
+      const stored=localStorage.getItem('employeeSession');
+      if(!stored) return void router.push('/');
+      try{
+        const session=JSON.parse(stored);
+        const { id_puesto, id_empleado } = session;
+  
+        // Función async para update
+        (async () => {
+          if (id_puesto !== 6) {
+            const { data, error } = await supabase
+              .from('empleado')
+              .update({ estado_actividad_empleado: 'En el módulo de inicio' })
+              .eq('id_empleado', id_empleado);
+            if (error) console.error('Error al actualizar estado automático:', error);
+            else console.log('Estado automático actualizado:', data);
+          }
+        })();
+      }catch{router.push('/');}
+    },[router]);
 
   useEffect(() => {
     const timer = setInterval(() => {
