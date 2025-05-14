@@ -267,11 +267,11 @@ export default function Ingresos_ventas_page() {
               <p>Q {dayTotal}.00</p>
             </div>
             <div className="card">
-              <h3>Ventas del Mes</h3>
+              <h3>Ventas últimos 30 días</h3>
               <p>Q {monthTotal}.00</p>
             </div>
             <div className="card">
-              <h3>Ventas del Año</h3>
+              <h3>Ventas últimos 365 días</h3>
               <p>Q {annualTotal}.00</p>
             </div>
           </section>
@@ -311,10 +311,10 @@ export default function Ingresos_ventas_page() {
                   Hoy
                 </button>
                 <button onClick={() => setSummaryFilter('month')} className={summaryFilter === 'month' ? 'active' : 'button_ventas'}>
-                  Último Mes
+                  Últimos 30 días
                 </button>
                 <button onClick={() => setSummaryFilter('year')} className={summaryFilter === 'year' ? 'active' : 'button_ventas'}>
-                  Último Año
+                  Últimos 365 días
                 </button>
                 <button onClick={() => setSummaryFilter('custom')} className={summaryFilter === 'custom' ? 'active' : 'button_ventas'}>Personalizado</button>
               </div>
@@ -357,8 +357,8 @@ export default function Ingresos_ventas_page() {
             <h2>Gráfica de Ventas</h2>
             <div className="chart-filters">
               <button onClick={() => setChartFilter('week')} className={chartFilter === 'week' ? 'active' : 'button_ventas'}>Última Semana</button>
-              <button onClick={() => setChartFilter('month')} className={chartFilter === 'month' ? 'active' : 'button_ventas'}>Último Mes</button>
-              <button onClick={() => setChartFilter('year')} className={chartFilter === 'year' ? 'active' : 'button_ventas'}>Último Año</button>
+              <button onClick={() => setChartFilter('month')} className={chartFilter === 'month' ? 'active' : 'button_ventas'}>Últimos 30 días</button>
+              <button onClick={() => setChartFilter('year')} className={chartFilter === 'year' ? 'active' : 'button_ventas'}>Últimos 365 días</button>
               <button onClick={() => setChartFilter('custom')} className={chartFilter === 'custom' ? 'active' : 'button_ventas'}>Personalizado</button>
             </div>
               {chartFilter === 'custom' && (
