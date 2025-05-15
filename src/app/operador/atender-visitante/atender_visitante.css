@@ -1,3 +1,13 @@
+.atender_visitante_contenedor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  background-color: rgba(255, 186, 8, 0.2);
+}
+
 .atender_visitante_grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -5,6 +15,7 @@
     padding: 2rem;
     max-width: 900px; /* Limita el ancho total */
     margin: 0 auto;    /* Centra horizontalmente */
+    width: 100%;
   }
   
   .juego-card {
@@ -145,9 +156,9 @@
     background-color: #e53935; /* rojo */
   }
 
-  body {
+  /*body {
     background-color: rgba(255, 186, 8, 0.2);
-  }
+  }*/
 
   .juego-rojo {
     border: 3px solid red;
@@ -171,7 +182,8 @@
   padding: 10px 20px;
   border-radius: 10px;
   max-width: 700px;
-  margin: 20px auto;
+  margin: auto;
+  margin-top: 20px;
   flex-wrap: wrap; /* se adapta en pantallas pequeñas */
 }
 
@@ -200,4 +212,11 @@
   font-weight: bold;
   border: none;
   cursor: pointer;
+}
+
+@media screen and (max-width: 800px) { 
+  .estado-barra {
+    flex-direction: column;
+    align-items: center;
+  }
 }

@@ -1,7 +1,14 @@
+.Juego_detalle_contenedor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 186, 8, 0.2);
+}
+
 .juego-contenedor {
     text-align: center;
     padding: 2rem;
-    background-color: rgba(255, 186, 8, 0.2);
     min-height: 100vh;
   }
   
@@ -216,4 +223,21 @@
   font-weight: bold;
   border: none;
   cursor: pointer;
+}
+
+.texto-verde {
+  color: green;
+  font-weight: bold;
+}
+
+.texto-rojo {
+  color: red;
+  font-weight: bold;
+}
+
+@media screen and (max-width: 800px) { 
+  .estado-barra {
+    flex-direction: column;
+    align-items: center;
+  }
 }

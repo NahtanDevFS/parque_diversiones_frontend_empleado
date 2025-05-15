@@ -95,20 +95,19 @@ export default function AtenderVisitante() {
 
   return (
     <LayoutWithSidebar>
-      <div className="estado-barra">
-  <label>
-    Opciones para notificar cese de actividades:
-    <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
-      <option value="En el almuerzo">En el almuerzo</option>
-      <option value="Turno cerrado">Turno cerrado</option>
-    </select>
-  </label>
-  <button onClick={handleStatusUpdate}>Actualizar estado</button>
-</div>
-      <div className="titulo_operador">
-        <h1>Bienvenido al control de atracciones</h1>
-        <p>Escoja el juego que está a su cargo</p>
+      <div className='atender_visitante_contenedor'>
+        <div className="estado-barra">
+          <h3>Opciones para notificar cese de actividades:</h3>
+          <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+            <option value="En el almuerzo">En el almuerzo</option>
+            <option value="Turno cerrado">Turno cerrado</option>
+          </select>
+          <button onClick={handleStatusUpdate}>Actualizar estado</button>
       </div>
+        <div className="titulo_operador">
+          <h1>Bienvenido al control de atracciones</h1>
+          <p>Escoja el juego que está a su cargo</p>
+        </div>
 
       <div className="atender_visitante_grid">
         {juegos.map((juego) => {
@@ -127,6 +126,7 @@ export default function AtenderVisitante() {
             </div>
           );
         })}
+      </div>
       </div>
     </LayoutWithSidebar>
   );

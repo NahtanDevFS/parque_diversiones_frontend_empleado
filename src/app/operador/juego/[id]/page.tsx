@@ -569,167 +569,167 @@ const botonesHabilitados = atraccion?.id_atraccion === 3
 
   return (
   <LayoutWithSidebar>
-    <div className="estado-barra">
-  <label>
-    Opciones para notificar cese de actividades:
-    <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
-      <option value="En el almuerzo">En el almuerzo</option>
-      <option value="Turno cerrado">Turno cerrado</option>
-    </select>
-  </label>
-  <button onClick={handleStatusUpdate}>Actualizar estado</button>
-</div>
+    <div className='Juego_detalle_contenedor'>
+      <div className="estado-barra">
+      <h3>Opciones para notificar cese de actividades:</h3>
+      <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+        <option value="En el almuerzo">En el almuerzo</option>
+        <option value="Turno cerrado">Turno cerrado</option>
+      </select>
+      <button onClick={handleStatusUpdate}>Actualizar estado</button>
+    </div>
 
-    <div className="juego-contenedor">
-      <h1>{atraccion?.nombre}</h1>
-      <p>
-        <strong>Capacidad:</strong> {atraccion?.capacidad} asientos
-      </p>
-      <p>
-        <strong>Ciclos realizados:</strong> {atraccion?.contador_ciclos_actuales}
-      </p>
-      <p style={{ fontWeight: 'bold', marginTop: '10px' }}>
-        Asientos disponibles:{' '}
-        {atraccion ? atraccion.capacidad - (atraccion.asientos_ocupados || 0) : 0}
-      </p>
-      <p>
-        <strong>Estado:</strong> {atraccion?.estado_atraccion}
-      </p>
-      {atraccion?.estado_atraccion === 'Mantenimiento' && atraccion.tiempo_reparacion && (
-        <>
-          <p style={{ color: 'red', fontWeight: 'bold' }}>
-            Máquina disponible:{' '}
-            {new Date(atraccion.tiempo_reparacion).toLocaleString('es-ES', {
-              day: 'numeric',
-              month: 'long',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </p>
-          <p style={{ color: 'red', fontWeight: 'bold' }}>
-            Tiempo estimado: {tiempoRestanteReparacion}
-          </p>
-        </>
-      )}
+      <div className="juego-contenedor">
+        <h1>{atraccion?.nombre}</h1>
+        <p>
+          <strong>Capacidad:</strong> {atraccion?.capacidad} asientos
+        </p>
+        <p>
+          <strong>Ciclos realizados:</strong> {atraccion?.contador_ciclos_actuales}
+        </p>
+        <p style={{ fontWeight: 'bold', marginTop: '10px' }}>
+          Asientos disponibles:{' '}
+          {atraccion ? atraccion.capacidad - (atraccion.asientos_ocupados || 0) : 0}
+        </p>
+        <p>
+          <strong>Estado:</strong>{' '}
+          <span
+            className={
+              atraccion?.estado_atraccion === 'Funcional'
+                ? 'texto-verde'
+                : 'texto-rojo'
+            }
+          >
+            {atraccion?.estado_atraccion}
+          </span>
+        </p>
+        {atraccion?.estado_atraccion === 'Mantenimiento' && atraccion.tiempo_reparacion && (
+          <>
+            <p style={{ color: 'red', fontWeight: 'bold' }}>
+              Tiempo estimado: {tiempoRestanteReparacion}
+            </p>
+          </>
+        )}
 
-      <button
-  onClick={iniciarCiclo}
-  disabled={!botonesHabilitados || cicloEnCurso}
-  className="boton-ciclo"
->
-  {cicloEnCurso ? 'Ciclo en curso...' : 'Iniciar recorrido'}
-</button>
-      <button
-  onClick={() => {
-    if (atraccion?.estado_atraccion !== 'Funcional') {
-      Swal.fire(
-        'Máquina no operativa',
-        `La máquina no puede operar, porque se encuentra en: "${atraccion?.estado_atraccion}".`,
-        'error'
-      );
-      return;
-    }
-    iniciarEscaneo();
-  }}
-  disabled={!botonesHabilitados}
-  className="boton-ciclo"
->
-  Escanear QR
-</button>
-
-      {cicloEnCurso && (
-        <div className="temporizador">
-          Tiempo restante:{' '}
-          {`${Math.floor(tiempoRestante / 60)
-            .toString()
-            .padStart(2, '0')}:${(tiempoRestante % 60).toString().padStart(2, '0')}`}
-        </div>
-      )}
-
-      <div className="leyenda">
-        <div>
-          <span className="cuadro libre" /> Libre
-        </div>
-        <div>
-          <span className="cuadro ocupado" /> Ocupado
-        </div>
-      </div>
-
-      <div className="cabina-marco">
-        <div className="pantalla-centrada">Frente / Entrada</div>
-        <div className="cine-asientos">
-          {filasUnicas.map((fila) => (
-            <div key={fila} className="fila">
-              <span className="etiqueta-fila">{fila}</span>
-              {asientos
-                .filter((a) => a.fila === fila)
-                .map((a) => {
-                  const esTucTuc = atraccion?.id_atraccion === 3;
-                  const puedeSeleccionar =
-                    esTucTuc && seleccionarAsiento && a.estado === 'libre';
-                  return (
-                    <div
-                      key={`${fila}-${a.numero}`}
-                      className={`asiento ${a.estado}`}
-                      style={{ cursor: puedeSeleccionar ? 'pointer' : 'default' }}
-                      onClick={() => {
-                        if (puedeSeleccionar) {
-                          handleSeleccionarAsiento(a.fila, a.numero);
-                        }
-                      }}
-                    >
-                      {a.numero}
-                    </div>
-                  );
-                })}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {scanner && (
         <button
-          onClick={cerrarCamara}
-          style={{
-            backgroundColor: '#e53935',
-            color: '#fff',
-            padding: '10px 20px',
-            fontWeight: 'bold',
-            border: 'none',
-            borderRadius: '8px',
-            margin: '0 auto',
-            display: 'block',
-          }}
-        >
-          Cerrar cámara
-        </button>
-      )}
+    onClick={iniciarCiclo}
+    disabled={!botonesHabilitados || cicloEnCurso}
+    className="boton-ciclo"
+  >
+    {cicloEnCurso ? 'Ciclo en curso...' : 'Iniciar recorrido'}
+  </button>
+        <button
+    onClick={() => {
+      if (atraccion?.estado_atraccion !== 'Funcional') {
+        Swal.fire(
+          'Máquina no operativa',
+          `La máquina no puede operar, porque se encuentra en: "${atraccion?.estado_atraccion}".`,
+          'error'
+        );
+        return;
+      }
+      iniciarEscaneo();
+    }}
+    disabled={!botonesHabilitados}
+    className="boton-ciclo"
+  >
+    Escanear QR
+  </button>
 
-      <div id="reader" style={{ width: '300px', margin: '2rem auto' }} />
+        {cicloEnCurso && (
+          <div className="temporizador">
+            Tiempo restante:{' '}
+            {`${Math.floor(tiempoRestante / 60)
+              .toString()
+              .padStart(2, '0')}:${(tiempoRestante % 60).toString().padStart(2, '0')}`}
+          </div>
+        )}
 
-      {historialUso.length > 0 && (
-        <div style={{ maxWidth: '400px', margin: '2rem auto' }}>
-          <h3>Historial de uso</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th style={{ borderBottom: '1px solid #ccc' }}>#</th>
-                <th style={{ borderBottom: '1px solid #ccc' }}>Fecha</th>
-                <th style={{ borderBottom: '1px solid #ccc' }}>Hora</th>
-              </tr>
-            </thead>
-            <tbody>
-              {historialUso.map((registro, index) => (
-                <tr key={registro.id_uso_atraccion}>
-                  <td>{index + 1}</td>
-                  <td>{registro.fecha_ciclo_atraccion}</td>
-                  <td>{registro.hora_ciclo_atraccion}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="leyenda">
+          <div>
+            <span className="cuadro libre" /> Libre
+          </div>
+          <div>
+            <span className="cuadro ocupado" /> Ocupado
+          </div>
         </div>
-      )}
+
+        <div className="cabina-marco">
+          <div className="pantalla-centrada">Frente / Entrada</div>
+          <div className="cine-asientos">
+            {filasUnicas.map((fila) => (
+              <div key={fila} className="fila">
+                <span className="etiqueta-fila">{fila}</span>
+                {asientos
+                  .filter((a) => a.fila === fila)
+                  .map((a) => {
+                    const esTucTuc = atraccion?.id_atraccion === 3;
+                    const puedeSeleccionar =
+                      esTucTuc && seleccionarAsiento && a.estado === 'libre';
+                    return (
+                      <div
+                        key={`${fila}-${a.numero}`}
+                        className={`asiento ${a.estado}`}
+                        style={{ cursor: puedeSeleccionar ? 'pointer' : 'default' }}
+                        onClick={() => {
+                          if (puedeSeleccionar) {
+                            handleSeleccionarAsiento(a.fila, a.numero);
+                          }
+                        }}
+                      >
+                        {a.numero}
+                      </div>
+                    );
+                  })}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {scanner && (
+          <button
+            onClick={cerrarCamara}
+            style={{
+              backgroundColor: '#e53935',
+              color: '#fff',
+              padding: '10px 20px',
+              fontWeight: 'bold',
+              border: 'none',
+              borderRadius: '8px',
+              margin: '0 auto',
+              display: 'block',
+            }}
+          >
+            Cerrar cámara
+          </button>
+        )}
+
+        <div id="reader" style={{ width: '300px', margin: '2rem auto' }} />
+
+        {historialUso.length > 0 && (
+          <div style={{ maxWidth: '400px', margin: '2rem auto' }}>
+            <h3>Historial de uso</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{ borderBottom: '1px solid #ccc' }}>#</th>
+                  <th style={{ borderBottom: '1px solid #ccc' }}>Fecha</th>
+                  <th style={{ borderBottom: '1px solid #ccc' }}>Hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                {historialUso.map((registro, index) => (
+                  <tr key={registro.id_uso_atraccion}>
+                    <td>{index + 1}</td>
+                    <td>{registro.fecha_ciclo_atraccion}</td>
+                    <td>{registro.hora_ciclo_atraccion}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   </LayoutWithSidebar>
 );
