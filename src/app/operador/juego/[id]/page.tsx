@@ -495,7 +495,7 @@ const handleSeleccionarAsiento = async (fila: string, numero: number) => {
 
 const [scanner, setScanner] = useState<Html5Qrcode | null>(null);
 const [scannerActivo, setScannerActivo] = useState(false);
-let html5QrCode: Html5Qrcode | null = null;
+//let html5QrCode: Html5Qrcode | null = null;
 
 const iniciarEscaneo = async () => {
   const html5QrCode = new Html5Qrcode("reader");
