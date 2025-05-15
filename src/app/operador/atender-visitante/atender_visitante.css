@@ -145,6 +145,59 @@
     background-color: #e53935; /* rojo */
   }
 
-  .Atender_visitante_page {
+  body {
     background-color: rgba(255, 186, 8, 0.2);
   }
+
+  .juego-rojo {
+    border: 3px solid red;
+    background-color: #f97373f2;
+  }
+  
+  .estado-alerta {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  /* Fila de combobox y botón de estado */
+.estado-barra {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: rgba(255, 186, 8, 0.5);
+  padding: 10px 20px;
+  border-radius: 10px;
+  max-width: 700px;
+  margin: 20px auto;
+  flex-wrap: wrap; /* se adapta en pantallas pequeñas */
+}
+
+.estado-barra label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1f2937;
+}
+
+.estado-barra select {
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: none;
+  background-color: white;
+}
+
+.estado-barra button {
+  background-color: #facc15;
+  color: #000 !important;
+   -webkit-text-fill-color: #000;
+    background-color: white;
+  padding: 6px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
