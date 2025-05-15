@@ -295,7 +295,7 @@ export default function ControlPersonalPage() {
         <div className="control_personal_container">
           {/*SELECCIÓN DE ESTADO*/}
           <div className="estado-row">
-            <h4>Acciones para notificar cese de actividades:</h4>
+            <h4>Opciones para notificar cese de actividades:</h4>
             <select
               value={selectedStatus}
               onChange={e => setSelectedStatus(e.target.value)}
