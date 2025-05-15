@@ -283,20 +283,20 @@ export default function Ingresos_ventas_page() {
               <div className="card-type juegos-card">
                 <h3>Juegos</h3>
                 <p>Hoy: {dayTypeCounts.juegos||0}</p>
-                <p>Mes: {monthTypeCounts.juegos||0}</p>
-                <p>Año: {annualTypeCounts.juegos||0}</p>
+                <p>últimos 30 días: {monthTypeCounts.juegos||0}</p>
+                <p>últimos 365 días: {annualTypeCounts.juegos||0}</p>
               </div>
               <div className="card-type completo-card">
                 <h3>Completo</h3>
                 <p>Hoy: {dayTypeCounts.completo||0}</p>
-                <p>Mes: {monthTypeCounts.completo||0}</p>
-                <p>Año: {annualTypeCounts.completo||0}</p>
+                <p>últimos 30 días: {monthTypeCounts.completo||0}</p>
+                <p>últimos 365 días: {annualTypeCounts.completo||0}</p>
               </div>
               <div className="card-type entrada-card">
                 <h3>Entrada</h3>
                 <p>Hoy: {dayTypeCounts.entrada||0}</p>
-                <p>Mes: {monthTypeCounts.entrada||0}</p>
-                <p>Año: {annualTypeCounts.entrada||0}</p>
+                <p>últimos 30 días: {monthTypeCounts.entrada||0}</p>
+                <p>últimos 365 días: {annualTypeCounts.entrada||0}</p>
               </div>
             </div>
           </section>
