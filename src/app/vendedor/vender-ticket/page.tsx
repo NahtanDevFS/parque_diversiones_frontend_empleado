@@ -16,6 +16,9 @@ export default function Comprar() {
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [cantidad, setCantidad] = useState<number>(1);
+
+  // Estado para el selector de actividad manual
+      const [selectedStatus, setSelectedStatus] = useState<string>('En el almuerzo');
       
         // Validación del token para proteger la ruta
           useEffect(() => {
@@ -27,6 +30,19 @@ export default function Comprar() {
             }
             try {
               const session = JSON.parse(storedSession);
+              const { id_puesto, id_empleado } = session;
+                    
+              // Función async para update
+              (async () => {
+                if (id_puesto !== 6) {
+                  const { data, error } = await supabase
+                    .from('empleado')
+                    .update({ estado_actividad_empleado: 'En el módulo de venta de tickets' })
+                    .eq('id_empleado', id_empleado);
+                  if (error) console.error('Error al actualizar estado automático:', error);
+                  else console.log('Estado automático actualizado:', data);
+                }
+              })();
               // Solo el admin (id_puesto = 6) y el vendedor (id_puesto = 4) tiene acceso a esta página
               if (session.id_puesto !== 6 && session.id_puesto !== 4) {
                 Swal.fire({
@@ -167,12 +183,39 @@ export default function Comprar() {
 
   const getTicketInfo = (tipo: string) => ticketDescriptions[tipo] || '';
 
+  // Handler para actualizar estado desde el combobox
+      const handleStatusUpdate = async () => {
+        const stored = localStorage.getItem('employeeSession');
+        if (!stored) return;
+        const session = JSON.parse(stored);
+        await supabase
+          .from('empleado')
+          .update({ estado_actividad_empleado: selectedStatus })
+          .eq('id_empleado', session.id_empleado);
+        Swal.fire('Éxito', 'Estado actualizado a ' + selectedStatus, 'success');
+      };
+
   return (
     <LayoutWithSidebar>
     <div className={styles.container}>
       <Head>
         <title>Compra de Ticket</title>
       </Head>
+
+    {/*SELECCIÓN DE ESTADO*/}
+          <div className={styles.estado_row}>
+            <h4>Opciones para notificar cese de actividades:</h4>
+            <select
+              value={selectedStatus}
+              onChange={e => setSelectedStatus(e.target.value)}
+            >
+              <option value="En el almuerzo">En el almuerzo</option>
+              <option value="Turno cerrado">Turno cerrado</option>
+            </select>
+            <button onClick={handleStatusUpdate} >
+              Actualizar estado
+            </button>
+          </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <h1>Datos del comprador</h1>

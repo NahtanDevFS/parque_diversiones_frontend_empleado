@@ -4,12 +4,33 @@
     justify-content: center;
     align-items: center;
     height: auto;
+    flex-direction: column;
   }
 
   .head {
     display: flex;
     margin-top: 10%;
   }
+
+.estado_row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.estado_row select,
+.estado_row button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.estado_row button {
+  background-color: rgba(255, 157, 0, 1);
+}
   
   .form {
     background-color: rgba(255, 186, 8, 0.25);
@@ -117,7 +138,7 @@
 
   @media screen and (max-width: 900px) {
     .form {
-      margin-top: 25%;
+      margin-top: 17%;
       max-width: 400px;
       width: 85%;
       padding: 2rem;
@@ -167,6 +188,13 @@
       text-align: center;
       margin-top: 20px;
       font-weight: bold;
+    }
+
+    .estado_row {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 75%;
     }
     
   }
