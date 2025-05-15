@@ -15,7 +15,7 @@
   
   .control-container {
     padding: 3rem;
-    background-color: #fff9ef;
+    background-color: rgb(255, 147, 58);
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     max-width: 1000px;
@@ -152,4 +152,51 @@
       width: 100%;
     }
   }
+
+
+
+  .estado-barra {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: #fb923c;
+  padding: 10px 20px;
+  border-radius: 10px;
+  max-width: 700px;
+  margin: 20px auto;
+  flex-wrap: wrap; /* se adapta en pantallas pequeñas */
+}
+
+.estado-barra label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1f2937;
+}
+
+.estado-barra select {
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: none;
+  background-color: white;
+}
+
+.estado-barra button {
+  background-color: #facc15;
+  color: #000 !important;
+   -webkit-text-fill-color: #000;
+    background-color: white;
+  padding: 6px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+
+
+
+
   

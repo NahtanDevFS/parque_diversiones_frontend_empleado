@@ -17,35 +17,50 @@ export default function SalidasVisitantes() {
   const [todosVisitantes, setTodosVisitantes] = useState<Visitante[]>([]);
   const [visitantes, setVisitantes] = useState<Visitante[]>([]);
   const [busqueda, setBusqueda] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<string>('En el almuerzo');
 
   const router = useRouter();
-  
-    // Validación del token para proteger la ruta
-      useEffect(() => {
-        const storedSession = localStorage.getItem('employeeSession');
-        if (!storedSession) {
-          // Si no hay token, redireccionar a la página de inicio
+
+  // Validación del token para proteger la ruta
+  useEffect(() => {
+    const storedSession = localStorage.getItem('employeeSession');
+    if (!storedSession) {
+      router.push('/');
+      return;
+    }
+    try {
+      const session = JSON.parse(storedSession);
+      const { id_puesto, id_empleado } = session;
+
+      // Protección por rol
+      if (id_puesto !== 3 && id_puesto !== 2) {
+        Swal.fire({
+          title: 'Acceso denegado',
+          text: 'No tienes permiso para acceder a ese módulo',
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        }).then(() => {
           router.push('/');
-          return;
-        }
-        try {
-          const session = JSON.parse(storedSession);
-          // Solo el gerente (id_puesto = 3) y el de seguridad (id_puesto = 2) tiene acceso a esta página
-          if (session.id_puesto !== 3 && session.id_puesto !== 2) {
-            Swal.fire({
-                title: 'Acceso denegado',
-                text: 'No tienes permiso para acceder a ese módulo',
-                icon: 'error',
-                confirmButtonText: 'Ok'
-              }).then(() => {
-                router.push('/');
-              });
-          }
-        } catch (error) {
-          console.error("Error al parsear el token", error);
-          router.push('/');
-        }
-      }, [router]);
+        });
+      }
+
+      // Actualización automática de estado
+      if (id_puesto !== 6) {
+        (async () => {
+          const { data, error } = await supabase
+            .from('empleado')
+            .update({ estado_actividad_empleado: 'En el módulo de salidas' })
+            .eq('id_empleado', id_empleado);
+          if (error) console.error('Error al actualizar estado automático:', error);
+          else console.log('Estado automático actualizado:', data);
+        })();
+      }
+
+    } catch (error) {
+      console.error("Error al parsear el token", error);
+      router.push('/');
+    }
+  }, [router]);
 
   useEffect(() => {
     fetchVisitantes();
@@ -96,14 +111,37 @@ export default function SalidasVisitantes() {
     }
   };
 
+  const handleStatusUpdate = async () => {
+    const stored = localStorage.getItem('employeeSession');
+    if (!stored) return;
+    const session = JSON.parse(stored);
+    await supabase
+      .from('empleado')
+      .update({ estado_actividad_empleado: selectedStatus })
+      .eq('id_empleado', session.id_empleado);
+    Swal.fire('Éxito', 'Estado actualizado a ' + selectedStatus, 'success');
+  };
+
   return (
     <LayoutWithSidebar>
+
+<div className="estado-barra">
+  <label>
+    Opciones para notificar cese de actividades:
+    <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+      <option value="En el almuerzo">En el almuerzo</option>
+      <option value="Turno cerrado">Turno cerrado</option>
+    </select>
+  </label>
+  <button onClick={handleStatusUpdate}>Actualizar estado</button>
+</div>
+
       <div className="salidas-page">
         <div className="salidas-container">
-  
-          
+
+
           <center><h2>Control de Salidas</h2></center>
-  
+
           <div className="buscador">
             <input
               type="text"
@@ -112,11 +150,11 @@ export default function SalidasVisitantes() {
               onChange={handleBuscar}
             />
           </div>
-  
+
           <div className="contador-visitantes">
             Visitantes activos: {visitantes.length}
           </div>
-  
+
           {visitantes.length === 0 ? (
             <p>No hay visitantes activos.</p>
           ) : (
@@ -148,9 +186,9 @@ export default function SalidasVisitantes() {
               </table>
             </div>
           )}
-  
-        </div> {/* cierra .salidas-container */}
-      </div> {/* cierra .salidas-page */}
+
+        </div>
+      </div>
     </LayoutWithSidebar>
   );
 }

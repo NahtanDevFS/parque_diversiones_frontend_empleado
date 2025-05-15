@@ -44,6 +44,8 @@ export default function ControlEmpleadosPage() {
   const [allExited, setAllExited] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: "error" | "success" } | null>(null);
   const [filter, setFilter] = useState("hoy");
+  const [selectedStatus, setSelectedStatus] = useState<string>('En el almuerzo');
+
 
   const router = useRouter();
     
@@ -57,6 +59,21 @@ export default function ControlEmpleadosPage() {
           }
           try {
             const session = JSON.parse(storedSession);
+
+            if (session.id_puesto !== 6) {
+             (async () => {
+           const { data, error } = await supabase
+            .from('empleado')
+           .update({ estado_actividad_empleado: 'En el módulo de empleados' })
+           .eq('id_empleado', session.id_empleado);
+         if (error) console.error('Error al actualizar estado automático:', error);
+       else console.log('Estado automático actualizado:', data);
+  })();
+}
+
+
+
+
             // Solo el gerente (id_puesto = 3) y el de seguridad (id_puesto = 2) tiene acceso a esta página
             if (session.id_puesto !== 3 && session.id_puesto !== 2) {
               Swal.fire({
@@ -277,14 +294,41 @@ export default function ControlEmpleadosPage() {
     showNotification("PDF generado exitosamente", "success");
   };
 
+  const handleStatusUpdate = async () => {
+  const stored = localStorage.getItem('employeeSession');
+  if (!stored) return;
+  const session = JSON.parse(stored);
+  await supabase
+    .from('empleado')
+    .update({ estado_actividad_empleado: selectedStatus })
+    .eq('id_empleado', session.id_empleado);
+  Swal.fire('Éxito', 'Estado actualizado a ' + selectedStatus, 'success');
+};
+
+
   return (
     <LayoutWithSidebar>
+
+<div className="estado-barra">
+  <label>
+    Opciones para notificar cese de actividades:
+    <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+      <option value="En el almuerzo">En el almuerzo</option>
+      <option value="Turno cerrado">Turno cerrado</option>
+    </select>
+  </label>
+  <button onClick={handleStatusUpdate}>Actualizar estado</button>
+</div>
+
       <div className={`control-container ${allExited ? "moved" : ""}`}>
         <h2 style={{ textAlign: "center", marginBottom: "1.5rem" }}> </h2>
 
         <header className="header">
           <h2>CONTROL DE EMPLEADOS</h2>
         </header>
+
+
+
 
         <main>
           {employees.map((emp) => (
