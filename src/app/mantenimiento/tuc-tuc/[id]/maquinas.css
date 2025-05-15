@@ -1,0 +1,436 @@
+/* Contenedor principal */
+.panel-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+   
+    background-color:  rgba(255, 115, 0, 1); /* fondo oscuro */
+  }
+  
+  /* HEADER: imagen + título alineados */
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;            /* proximidad entre imagen y título */
+    border-bottom: 2px solid white;
+    padding-bottom: 12px;
+    color: white;
+  }
+  .panel-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  .panel-title {
+    font-size: 2rem;
+    color: #fff;
+    margin: 0;
+  }
+  
+  /* Agrupación de secciones por filas */
+  .panel-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;            /* mantiene igualdad de distancia */
+  }
+  
+  /* Estilo común de cada sección */
+  .panel-section {
+    background-color: rgba(243, 219, 158, 0.826);
+    padding: 16px;
+    border-radius: 6px;
+    color:black;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .panel-section h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 6px;
+  }
+  
+  /* Lista dentro de secciones */
+  .panel-section ul {
+    list-style: disc;
+    margin: 0;
+    padding-left: 20px;
+  }
+  
+  /* Formularios ocupa todo el ancho del contenedor */
+  .form-full {
+    grid-column: 1 / -1;  /* en un grid, fuerza a abarcar ambas columnas */
+  }
+  
+  /* Formulario de mantenimiento (alineación consistente) */
+  .form_mantenimiento {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;            /* espaciado uniforme */
+  }
+  .form_mantenimiento select,
+  .form_mantenimiento textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;     /* contraste fuerte */
+    color: #000;
+  }
+  .form_mantenimiento button {
+    align-self: flex-start;           /* proximidad etiqueta–botón */
+    background-color: #2196f3;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color .2s;
+  }
+  .form_mantenimiento button:hover {
+    background-color: #1976d2;
+  }
+  
+  /* Mejora de la legibilidad en checklist/details */
+  .checklist details,
+  .historial ul {
+    background-color: #f1990c important; /* color de fondo */ 
+    padding: 8px;
+    border-radius: 4px;
+  }
+  .checklist summary {
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .checklist details ul {
+    padding-left: 16px;
+    list-style: circle;
+  }
+  
+  /* Asegura continuidad cromática con el sidebar */
+  body {
+    background-color: rgba(255, 186, 8, 0.2);
+  }
+  /* Limita el tamaño de la imagen en el header */
+  .panel-header img {
+    width: auto;           /* mantén proporción */
+    max-width: 200px;      /* no más de 200px de ancho */
+    max-height: 150px;     /* no más de 150px de alto */
+    object-fit: cover;     /* recorta si hace falta */
+    border-radius: 8px;
+  }
+  
+  /* Para centrar y no forzar scroll */
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;       /* deja que rebote en pantallas muy pequeñas */
+  }
+  /* … código anterior … */
+  
+  /* Etiquetas de formulario alineadas */
+  .form_mantenimiento label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    gap: 4px;
+  }
+  
+  /* Input numérico */
+  .form_mantenimiento input[type="number"] {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+  }
+  /* Estilos para la sección de estado */
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+/* Título */
+.panel-section > h3 {
+  font-size: 1.125rem;      /* 18px */
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+  border-bottom: 2px solid white;
+}
+
+/* Select estilizado */
+.panel-section > select {
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;   /* 6px */
+  background-color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Estado de foco */
+.panel-section > select:focus {
+  outline: none;
+  border-color: #3182ce;     /* azul suave */
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.3);
+}
+
+/* Opciones */
+.panel-section > select option {
+  padding: 0.25rem 0;
+}
+/* Estilos para la sección de fecha y hora */
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+/* Título */
+.panel-section > h3 {
+  font-size: 1.125rem;      /* 18px */
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Input datetime-local estilizado */
+.panel-section > input[type="datetime-local"] {
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem; /* 6px */
+  background-color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  max-width: 250px;
+}
+
+/* Estado de foco */
+.panel-section > input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: #3182ce;    /* azul suave */
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.3);
+}
+
+/* Placeholder y texto */
+.panel-section > input[type="datetime-local"]::-webkit-datetime-edit {
+  color: #333;
+}
+/* Estilos para la sección de fecha y hora */
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+/* Título */
+.panel-section > h3 {
+  font-size: 1.125rem;      /* 18px */
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Input datetime-local estilizado */
+.panel-section > input[type="datetime-local"] {
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem; /* 6px */
+  background-color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  max-width: 250px;
+}
+
+/* Estado de foco */
+.panel-section > input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: #3182ce;    /* azul suave */
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.3);
+}
+
+/* Placeholder y texto */
+.panel-section > input[type="datetime-local"]::-webkit-datetime-edit {
+  color: #333;
+}
+/* Contenedor del botón en la sección completa */
+.panel-section.form-full {
+  text-align: right;
+  margin-top: 1.5rem;
+}
+
+/* Estilo del botón de guardar */
+.panel-section.form-full > button {
+  margin-top: 0 !important;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #3182ce;      /* azul */
+  border: none;
+  border-radius: 0.375rem;        /* 6px */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Hover */
+.panel-section.form-full > button:hover {
+  background-color: #2b6cb0;      /* azul más oscuro */
+}
+
+/* Active (clic) */
+.panel-section.form-full > button:active {
+  transform: scale(0.98);
+}
+
+/* Focus accesible */
+.panel-section.form-full > button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.4);
+}
+/* Contenedor de ciclos manuales */
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+/* Título */
+.panel-section > h3 {
+  font-size: 1.125rem;    /* 18px */
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Texto de valores actual/límite */
+.panel-section > p {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: #444;
+}
+
+/* Label y input juntos */
+.panel-section > label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel-section > label input[type="number"] {
+  margin-left: 0.5rem;
+  width: 4rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.panel-section > label input[type="number"]:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.3);
+}
+
+/* Subtítulo de registro manual */
+.panel-section > h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+/* Lista de registros */
+.panel-section > ul {
+  list-style: disc inside;
+  margin: 0;
+  padding: 0;
+  margin-left: 1rem;
+}
+
+.panel-section > ul > li {
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  color: #444;
+}
+
+.panel-section > p i {
+  color: #777;
+}
+/* Aumenta el ancho del input de Costo en el formulario de mantenimiento */
+.form_mantenimiento label input[type="number"] {
+  width: 6rem;              /* ancho más cómodo */
+  min-width: 80px;          /* ancho mínimo */
+  padding: 0.4rem 0.6rem;    /* más espacio interior */
+  font-size: 1rem;          /* tamaño de texto consistente */
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  transition: border-color 0.2s ease;
+}
+
+/* En foco, resaltamos el borde */
+.form_mantenimiento label input[type="number"]:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.25);
+}
+/* Contenedor de botones */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Estilo base para ambos botones */
+.button-group button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.375rem;   /* 6px */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Botón principal: Guardar */
+.button-group button:first-child {
+  background-color: #38a169; /* verde */
+  color: #fff;
+}
+.button-group button:first-child:hover {
+  background-color: #2f855a;
+}
+
+/* Botón secundario: Volver */
+.button-group button:last-child {
+  background-color: #edf2f7; /* gris claro */
+  color: #333;
+}
+.button-group button:last-child:hover {
+  background-color: #e2e8f0;
+}
+
+/* Estado activo (clic) para ambos */
+.button-group button:active {
+  transform: scale(0.98);
+}
+
+/* Focus accesible */
+.button-group button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.6);
+}

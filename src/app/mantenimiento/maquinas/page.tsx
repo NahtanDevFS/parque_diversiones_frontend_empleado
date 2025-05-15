@@ -16,6 +16,8 @@ export interface MantenimientoRealizado {
   descripcion: string;
 }
 
+
+
 export interface Machine {
   id: number;
   nombre: string;
