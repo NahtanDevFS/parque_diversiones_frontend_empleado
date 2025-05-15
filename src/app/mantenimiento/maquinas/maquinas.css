@@ -3,12 +3,14 @@
     min-height: 100vh;
     padding: 20px;
     color: white;
+    
   }
   
   /* Título principal */
   .maquinas_page h1 {
     text-align: center;
     margin-bottom: 20px;
+    
   }
   
   /* Contenedor que agrupa las máquinas */
@@ -17,6 +19,7 @@
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+    
   }
   
   /* Tarjeta individual de cada máquina */
@@ -130,6 +133,7 @@
     padding: 6px;
     border-radius: 4px;
     cursor: pointer;
+    
   }
   
   .maquina_card summary {

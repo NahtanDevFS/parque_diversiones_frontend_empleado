@@ -1,117 +1,198 @@
+/* ----------------  GLOBALES  ---------------- */
+:root {
+  --orange-bg: rgba(255, 186, 8, 0.2);
+  --orange-solid: rgba(255, 157, 0, 1);
+  --card-bg: rgba(255, 115, 0, 1);
+  --success: #0abe2b;
+}
+
+body,
 .hacer_mantenimiento_page {
-    background-color: rgba(255, 186, 8, 0.2);
-    min-height: 100vh;
-    padding: 20px;
-    color: white;
-  }
+  background-color: var(--orange-bg);
+  color: #fff;
+}
+
+/* ----------------  CONTENEDOR PRINCIPAL  ---------------- */
+.hacer_mantenimiento_page {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* ----------------  TÍTULO  ---------------- */
+.hacer_mantenimiento_page h1 {
   
+  text-align: center;
+  margin: 55px auto 20px auto;
+  padding: 5px 40px;             /* ← cambiamos paddings fijos */
+  background-color: var(--orange-solid);
+  border-radius: 8px;
+  width: max-content;            /* se ajusta al contenido */
+  max-width: 90%;
+}
+
+/* ----------------  TARJETAS  ---------------- */
+.contenedor_juegos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.juego_card {
+  background-color: var(--card-bg);
+  border: 2px solid #fff;
+  border-radius: 8px;
+  padding: 16px;
+  width: 300px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+
+.juego_card h2 {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.juego_card img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+/* ----------------  BOTONES  ---------------- */
+.botones_acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.botones_acciones button,
+.button_ventas {
+  background-color: var(--success);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.botones_acciones button:hover,
+.button_ventas:hover {
+  background-color: #45a049;
+  opacity: 0.9;
+}
+
+/* ----------------  BLOQUE DE ESTADO  ---------------- */
+/* ─────────────────────────────────────────
+   BLOQUE DE ESTADO –  REGLA ÚNICA (sin media-query)
+   Sustituye cualquier regla existente de .estado-row
+   ───────────────────────────────────────── */
+.estado-row{
+  background: var(--orange-solid);
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;      /* centra contenido interno */
+  gap:.75rem;
+  padding:10px 14px;
+  border-radius:6px;
+  text-align: center;
+
+  /* CENTRADO EXTERNO  */
+  width:100%;
+  max-width:250px;             /* pon aquí el ancho máx. que quieras */
+  margin:0 auto 20px;          /* ← “auto” a izquierda y derecha lo centra */
+
+  /* LAYOUT VERTICAL si la pantalla es muy angosta */
+  flex-direction:column;
+}
+
+/* Controles a todo el ancho cuando el bloque se apila */
+.estado-row h4{
+  width:100%;
+  text-align:center;
+  margin:0 0 .5rem 0;
+}
+.estado-row select,
+.estado-row .button_ventas{
+  width:100%;
+}
+
+
+/* ----------------  ESTADOS ESPECIALES  ---------------- */
+.card_mantenimiento { background: #cc0000; }
+.card_advertencia   { box-shadow: 0 0 10px 2px #fff; }
+
+/* ----------------  MEDIA-QUERIES  ---------------- */
+/*  Tablet landscape & pequeños desktops  */
+@media (max-width: 1023px) {
+  .hacer_mantenimiento_page h1 { padding: 5px 20px; }
+  .juego_card { width: 260px; }
+  .estado-row { margin-left: 90px; max-width: 90%; }
+}
+
+/*  Tablet portrait y móviles grandes  */
+/* ===== MÓVILES (≤ 767 px) ===== */
+@media (max-width:767px){
+  .estado-row{
+    position: static;          /* quita absolute            */
+    width:100%;
+    box-sizing:border-box;     /* incluye paddings           */
+    margin:0 0 16px 0;         /* separa del título          */
+
+    /* layout vertical y controles full-width */
+    flex-direction:column;
+    align-items:stretch;       /* estira hijos al 100 %       */
+  }
+
+  .estado-row h4{
+    width:100%;
+    margin:0 0 .5rem 0;        /* propio renglón             */
+    text-align:center;         /* centrado opcional          */
+  }
+
+  .estado-row select,
+  .estado-row .button_ventas{  /* asegúrate del selector correcto */
+    width:100%;
+  }
+
+  /* título ocupa 100 % también */
+  .hacer_mantenimiento_page h1{
+    width:100%;
+    max-width:100%;
+    margin:20px 0 16px;
+    padding:10px 8px;
+    font-size:1.2rem;
+    box-sizing:border-box;
+  }
+
+  /* si el sidebar se mantiene fijo,
+     quita el padding general para no dejar hueco */
+  .hacer_mantenimiento_page{ padding-left:12px; padding-right:12px; }
+}
+/* ===== TABLETS (768 – 1023 px) ===== */
+@media (min-width: 768px) and (max-width: 1023px) {
+
   .hacer_mantenimiento_page h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: rgba(255, 115, 0, 1);
-  
-    
-    
+    width: auto;            /* se ajusta al texto     */
+    max-width: 90%;
+    margin: 30px auto 20px;
+    padding: 8px 16px;
+    font-size: 1.4rem;
   }
-  
-  .contenedor_juegos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    
-    
-    
+
+  .estado-row {
+    position: static;       /* sigue dentro del flujo */
+    width: auto;
+    max-width: 90%;
+    margin: 0 auto 20px;    /* centrado debajo del título */
+    flex-direction: row;    /* controles en línea  */
+    align-items: center;
   }
-  
-  .juego_card {
-    background-color: rgba(255, 186, 8, 0.2);
-    border: 2px solid #ffffff;
-    border-radius: 8px;
-    padding: 16px;
-    width: 300px;
-    min-height: 420px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    background-color: rgba(255, 186, 8, 0.8);
-    
-  }
-  
-  .juego_card h2 {
-    text-align: center;
-    margin-bottom: 8px;
-    
-    
-  }
-  
-  .juego_card img {
-    width: 100%;
-    height: auto;
-    border-radius: 4px;
-    margin-bottom: 8px;
-  }
-  
-  .botones_acciones {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: auto;
-  }
-  
-  .botones_acciones button {
-    background-color: #4caf50;
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .botones_acciones button:hover {
-    background-color: #45a049;
-  }
-  
-  .botones_acciones button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
-  .calendario_mantenimientos {
-    margin: 20px auto;
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.2);
-    width: 80%;
-    border-radius: 8px;
-    text-align: center;
-  }
-  
-  /* Tarjeta pintada de rojo cuando la maquina está en mantenimiento */
-  .card_mantenimiento {
-    background-color: #cc0000; /* un rojo más oscuro */
-    color: #fff;
-  }
-  
-  
-  /* Tarjeta pintada de naranja claro si faltan <= 10 ciclos (pero no está vencida) */
-  .card_advertencia {
-    box-shadow: 0 0 10px 2px white;
-    /* O cualquier otro estilo que te guste */
-  }
-  
-  
-  .toggle_calendario_btn {
-    position: absolute; /* o fixed si quieres que se quede aunque hagas scroll */
-    top: 20px;
-    right: 20px;
-    background-color: #4caf50;
-    border: none;
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-  }
+}

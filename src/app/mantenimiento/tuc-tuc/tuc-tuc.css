@@ -1,0 +1,108 @@
+/* tuc-tuc.css */
+
+.tuc-tuc_page {
+    padding: 2rem;
+    background-color: #f9f9f9;
+    
+  }
+  
+  .tuc-tuc_page h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  .btn-volver {
+    display: inline-block;
+    margin-bottom: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-volver:hover {
+    background-color: #0056b3;
+  }
+  
+  .contenedor_juegos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .juego_card {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    
+  }
+  
+  .juego_card h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #222;
+  }
+  
+  .juego_card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 0.3rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .juego_card p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  
+  .badge-vencido,
+  .badge-tolerancia {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  
+  .badge-vencido {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .badge-tolerancia {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .botones_acciones {
+    margin-top: auto;
+    text-align: center;
+  }
+  
+  .botones_acciones button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .botones_acciones button:hover {
+    background-color: #1e7e34;
+  }
+  

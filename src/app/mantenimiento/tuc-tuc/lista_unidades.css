@@ -1,0 +1,207 @@
+/* Contenedor principal: centra el contenido y limita su ancho */
+#__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: rgba(243, 219, 158, 0.826);
+}
+
+body {
+  background-color: rgba(243, 219, 158, 0.826);
+  color: #333; /* texto claro para contraste */
+  font-family: Arial, sans-serif; /* fuente legible */
+  line-height: 1.6; /* mejora la legibilidad */
+  color:white; /* texto claro para contraste */
+  font-size: 1rem; /* tamaño de fuente legible */
+  
+}
+
+.lista-unidades-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  border-radius: 0.5rem; /* cierre visual */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color:  rgba(255, 115, 0, 1); /* fondo oscuro */
+  text-align: center;
+ 
+}
+
+/* Volver */
+.volver-container {
+  margin-top: 50px; /* Espacio entre el encabezado y el botón */
+  background-color: rgba(243, 219, 158, 0.826);
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem 0;                  /* Espacio cómodo */
+  text-align: center;               /* Centra el botón */
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  z-index: 100;   
+  background-color: transparent;    /* <-- transparente */
+  min-height: calc(100vh - 2rem);
+  
+}
+.btn-volver {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;          /* Más “clicable” */
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;                      
+  background-color: #3182ce;        /* Azul más llamativo */
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  
+}
+.btn-volver:hover {
+  background-color: #2b6cb0;
+}
+
+.btn-volver:active {
+  transform: scale(0.98);
+}
+
+.btn-volver:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(49,130,206,0.5);
+  
+  
+}
+/* Ajuste móvil: ocupa ancho completo */
+@media (max-width: 600px) {
+  .btn-volver {
+    width: 90%;
+    max-width: 300px;
+  }
+}
+/* Wrapper para scroll horizontal en móvil */
+.tabla-wrapper {
+  overflow-x: auto;
+  margin-top: 1rem;
+  
+}
+
+/* Tabla: ley de Similaridad (filas similares se ven relacionadas) */
+.tabla-unidades {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: sans-serif;
+  color: #333; /* texto claro para contraste */
+  font-size: 1rem; /* tamaño de fuente legible */
+   
+}
+
+/* Encabezado pegajoso para continuidad */
+.tabla-unidades thead th {
+  position: sticky;
+  top: 0;
+  background-color: rgba(243, 219, 158, 0.611);
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 2px solid #ddd;
+  border-radius: 10px 10px 0 0; /* esquinas redondeadas */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10; /* encima de otras filas */
+}
+
+/* Filas: ley de Proximidad (espaciado consistente) y de Contraste alternado */
+.tabla-unidades tbody tr {
+  background-color: rgba(243, 219, 158, 0.826);
+}
+.tabla-unidades tbody tr:nth-child(even) {
+  background-color: rgba(243, 219, 158, 0.826);
+  
+}
+.tabla-unidades tbody tr:hover {
+  background:rgba(255, 115, 0, 1);
+  
+}
+
+/* Celdas con padding consistente */
+.tabla-unidades th,
+.tabla-unidades td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  background-color: rgba(243, 219, 158, 0.826);
+  
+}
+
+/* Imagen en miniatura */
+.thumb-unidad {
+  width: 60px;
+  height: auto;
+  border-radius: 0.25rem;
+  display: block;
+  margin: 0 auto;
+  
+}
+
+/* Botón de acción: ley de Similaridad */
+.btn-proximo {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.btn-proximo:hover { background-color: #45a049; }
+.btn-proximo:active { transform: scale(0.98); }
+.btn-proximo:focus { outline: none; box-shadow: 0 0 0 3px rgba(72,187,120,0.5); }
+
+/* Responsive: ley de Figura-Fondo para legibilidad en móvil */
+@media (max-width: 768px) {
+  .tabla-unidades, 
+  .tabla-unidades thead, 
+  .tabla-unidades tbody, 
+  .tabla-unidades th, 
+  .tabla-unidades td, 
+  .tabla-unidades tr {
+    display: block;
+    
+  }
+  .tabla-unidades thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    
+  }
+  .tabla-unidades tr {
+    margin-bottom: 1rem;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    
+  }
+  .tabla-unidades td {
+    position: relative;
+    padding-left: 50%;
+    white-space: pre-wrap;
+    text-align: left;
+    
+  }
+  .tabla-unidades td:before {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 40%;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    
+  }
+  .tabla-unidades td:nth-of-type(1):before { content: "Unidad"; }
+  .tabla-unidades td:nth-of-type(2):before { content: "Estado"; }
+  .tabla-unidades td:nth-of-type(3):before { content: "Última Reparación"; }
+  .tabla-unidades td:nth-of-type(4):before { content: "Imagen"; }
+  .tabla-unidades td:nth-of-type(5):before { content: "Acción"; }
+}
