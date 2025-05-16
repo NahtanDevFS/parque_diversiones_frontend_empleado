@@ -44,7 +44,7 @@
     flex-wrap: wrap;
   }
   
-  .card {
+  .card_visitantes {
     background-color: rgba(255, 186, 8, 0.5);
     padding: 20px;
     border-radius: 12px;
@@ -54,12 +54,12 @@
     flex: 1;
   }
   
-  .card h3 {
+  .card_visitantes h3 {
     font-size: 1.4rem;
     color: rgba(255, 115, 0, 1);
   }
   
-  .card p {
+  .card_visitantes p {
     font-size: 2rem;
     color: #333;
     margin: 0;
@@ -165,7 +165,7 @@
       align-items: center;
     }
   
-    .card {
+    .card_visitantes {
       width: 100%;
       max-width: 300px;
     }

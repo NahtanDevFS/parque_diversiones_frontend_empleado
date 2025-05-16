@@ -195,15 +195,15 @@ export default function ReporteVisitantes() {
           <h2 className='titulo_reporte'>Reporte de Visitantes</h2>
   
           <div className='cards-summary'>
-            <div className='card'>
+            <div className='card_visitantes'>
               <h3>Visitantes Hoy</h3>
               <p>{conteos.hoy}</p>
             </div>
-            <div className='card'>
+            <div className='card_visitantes'>
               <h3>Esta Semana</h3>
               <p>{conteos.semana}</p>
             </div>
-            <div className='card'>
+            <div className='card_visitantes'>
               <h3>Este Mes</h3>
               <p>{conteos.mes}</p>
             </div>
