@@ -6,7 +6,6 @@
   --success: #0abe2b;
 }
 
-body,
 .hacer_mantenimiento_page {
   background-color: var(--orange-bg);
   color: #fff;
@@ -93,35 +92,35 @@ body,
    BLOQUE DE ESTADO –  REGLA ÚNICA (sin media-query)
    Sustituye cualquier regla existente de .estado-row
    ───────────────────────────────────────── */
-.estado-row{
-  background: var(--orange-solid);
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:center;      /* centra contenido interno */
-  gap:.75rem;
-  padding:10px 14px;
-  border-radius:6px;
-  text-align: center;
-
-  /* CENTRADO EXTERNO  */
-  width:100%;
-  max-width:250px;             /* pon aquí el ancho máx. que quieras */
-  margin:0 auto 20px;          /* ← “auto” a izquierda y derecha lo centra */
-
-  /* LAYOUT VERTICAL si la pantalla es muy angosta */
-  flex-direction:column;
+/* Fila de combobox y botón de estado */
+.estado-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: #000;
 }
 
-/* Controles a todo el ancho cuando el bloque se apila */
-.estado-row h4{
-  width:100%;
-  text-align:center;
-  margin:0 0 .5rem 0;
-}
 .estado-row select,
-.estado-row .button_ventas{
-  width:100%;
+.estado-row button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.estado-row button {
+  background-color: rgba(255, 157, 0, 1);
+}
+
+
+
+.estado-row select:focus,
+.estado-row button:focus {
+  outline: none;
+  border-color: rgba(255, 115, 0, 1);
 }
 
 
@@ -134,33 +133,11 @@ body,
 @media (max-width: 1023px) {
   .hacer_mantenimiento_page h1 { padding: 5px 20px; }
   .juego_card { width: 260px; }
-  .estado-row { margin-left: 90px; max-width: 90%; }
 }
 
 /*  Tablet portrait y móviles grandes  */
 /* ===== MÓVILES (≤ 767 px) ===== */
 @media (max-width:767px){
-  .estado-row{
-    position: static;          /* quita absolute            */
-    width:100%;
-    box-sizing:border-box;     /* incluye paddings           */
-    margin:0 0 16px 0;         /* separa del título          */
-
-    /* layout vertical y controles full-width */
-    flex-direction:column;
-    align-items:stretch;       /* estira hijos al 100 %       */
-  }
-
-  .estado-row h4{
-    width:100%;
-    margin:0 0 .5rem 0;        /* propio renglón             */
-    text-align:center;         /* centrado opcional          */
-  }
-
-  .estado-row select,
-  .estado-row .button_ventas{  /* asegúrate del selector correcto */
-    width:100%;
-  }
 
   /* título ocupa 100 % también */
   .hacer_mantenimiento_page h1{
@@ -175,6 +152,15 @@ body,
   /* si el sidebar se mantiene fijo,
      quita el padding general para no dejar hueco */
   .hacer_mantenimiento_page{ padding-left:12px; padding-right:12px; }
+
+  .estado-row {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 90%;
+      margin-left: 5%;
+    }
+
 }
 /* ===== TABLETS (768 – 1023 px) ===== */
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -185,14 +171,5 @@ body,
     margin: 30px auto 20px;
     padding: 8px 16px;
     font-size: 1.4rem;
-  }
-
-  .estado-row {
-    position: static;       /* sigue dentro del flujo */
-    width: auto;
-    max-width: 90%;
-    margin: 0 auto 20px;    /* centrado debajo del título */
-    flex-direction: row;    /* controles en línea  */
-    align-items: center;
   }
 }

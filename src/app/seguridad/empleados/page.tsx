@@ -307,14 +307,12 @@ export default function ControlEmpleadosPage() {
     <LayoutWithSidebar>
 
 <div className="estado-barra">
-  <label>
-    Opciones para notificar cese de actividades:
+    <h3>Opciones para notificar cese de actividades:</h3>
     <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
       <option value="En el almuerzo">En el almuerzo</option>
       <option value="Turno cerrado">Turno cerrado</option>
       <option value="Ausencia temporal">Ausencia temporal</option>
     </select>
-  </label>
   <button onClick={handleStatusUpdate}>Actualizar estado</button>
 </div>
 
