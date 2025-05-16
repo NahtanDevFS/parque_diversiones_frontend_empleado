@@ -11,17 +11,17 @@ export default function Home() {
   const router = useRouter();
   const [fecha, setFecha] = useState(new Date());
 
-  useEffect(() => {
-    const session = localStorage.getItem("employeeSession");
-    if (!session) {
-      router.push("/login");
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const session = localStorage.getItem("employeeSession");
+  //   if (!session) {
+  //     router.push("/login");
+  //   }
+  // }, [router]);
 
   // Validación sesión
     useEffect(()=>{
       const stored=localStorage.getItem('employeeSession');
-      if(!stored) return void router.push('/');
+      if(!stored) return void router.push('/login');
       try{
         const session=JSON.parse(stored);
         const { id_puesto, id_empleado } = session;
