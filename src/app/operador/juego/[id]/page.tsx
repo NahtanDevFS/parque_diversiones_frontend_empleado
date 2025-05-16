@@ -575,6 +575,7 @@ const botonesHabilitados = atraccion?.id_atraccion === 3
       <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
         <option value="En el almuerzo">En el almuerzo</option>
         <option value="Turno cerrado">Turno cerrado</option>
+        <option value="Ausencia temporal">Ausencia temporal</option>
       </select>
       <button onClick={handleStatusUpdate}>Actualizar estado</button>
     </div>

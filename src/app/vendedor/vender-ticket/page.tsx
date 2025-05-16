@@ -211,6 +211,7 @@ export default function Comprar() {
             >
               <option value="En el almuerzo">En el almuerzo</option>
               <option value="Turno cerrado">Turno cerrado</option>
+              <option value="Ausencia temporal">Ausencia temporal</option>
             </select>
             <button onClick={handleStatusUpdate} >
               Actualizar estado
