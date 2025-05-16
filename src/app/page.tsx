@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import './home.css';
 import LayoutWithSidebar from '@/components/LayoutWithSidebar';
 import { useRouter } from "next/navigation";
+import axios from 'axios';
 import { supabase } from './actions';
-import Swal from 'sweetalert2';
 
 export default function Home() {
   const router = useRouter();
@@ -56,9 +56,36 @@ export default function Home() {
 
   const fechaMostrada = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
 
+  const [clima, setClima] = useState<{ temp: number; description: string; icon: string } | null>(null);
+
+    useEffect(() => {
+      const fetchClima = async () => {
+        try {
+          const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=Zacapa,GT&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric&lang=es`);
+          const data = response.data;
+          setClima({
+            temp: data.main.temp,
+            description: data.weather[0].description,
+            icon: data.weather[0].icon
+          });
+        } catch (error) {
+          console.error('Error al obtener el clima:', error);
+        }
+      };
+
+      fetchClima();
+    }, []);
+
   return (
     <LayoutWithSidebar>
       <div className='home_page'>
+                {clima && (
+          <div className="weather_widget">
+            <img src={`https://openweathermap.org/img/wn/${clima.icon}@2x.png`} alt="Clima" />
+            <span>{clima.temp}°C - {clima.description}</span>
+          </div>
+        )}
+
         <div className='home_container'>
           <div className='home_date_container'>
             <h2>{fechaMostrada}</h2>
