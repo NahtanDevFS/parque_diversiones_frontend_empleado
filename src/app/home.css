@@ -1,11 +1,14 @@
 .home_page {
   background-color: rgba(255, 186, 8, 0.2);
   width: 100%;
-  height: auto;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 20px 0;
+  box-sizing: border-box;
 }
+
 
 .home_container {
   display: flex;
@@ -120,7 +123,8 @@
 /* Media Queries para Mobile */
 @media only screen and (max-width: 480px) {
   .home_container {
-    width: 90%;
+    width: 95%;
+    padding: 0 10px;
   }
   .home_container h1 {
     font-size: 20px;
@@ -149,6 +153,76 @@
 }
 
 
+.weather_widget {
+  position: fixed; /* flota sobre todo */
+  top: 20px;        /* posición desde la parte superior */
+  right: 20px;      /* posición desde la derecha */
+  z-index: 1000;    /* encima del resto del contenido */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-size: 20px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.weather_widget img {
+  width: 50px;
+  height: 50px;
+}
+
+/* Tablet */
+@media only screen and (max-width: 768px) {
+  .weather_widget {
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+
+  .weather_widget img {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Celulares pequeños */
+@media only screen and (max-width: 480px) {
+  .weather_widget {
+    font-size: 14px;
+    padding: 6px 10px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .weather_widget img {
+    width: 40px;
+    height: 40px;
+  }
+}
 
 
+/* styles/home.css */
 
+.home_page {
+  position: relative;
+  min-height: 100vh;
+  background-image: url('/favicon.ico');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.home_page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* oscurece la imagen para mejor contraste */
+  z-index: 0;
+}
+
+.home_container {
+  position: relative;
+  z-index: 10;
+  color: white; /* asegura que el texto sea visible */
+}
