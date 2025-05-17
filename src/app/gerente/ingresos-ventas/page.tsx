@@ -192,31 +192,52 @@ export default function Ingresos_ventas_page() {
 
   /* ---------- Agrupar + ordenar Tickets Vendidos ---------- */
   const getGroupedAndSortedTickets = () => {
-    const grouped = ticketsByType.reduce(
-      (acc: Record<string, Ticket[]>, t) => {
-        const d = new Date(t.fecha_compra);
-        let key = d.toLocaleDateString();
-        if (ticketsGroupBy === "week")
-          key = `${d.getFullYear()}-W${getISOWeek(d).toString().padStart(2, "0")}`;
-        if (ticketsGroupBy === "month")
-          key = `${d.getFullYear()}-${(d.getMonth() + 1)
-            .toString()
-            .padStart(2, "0")}`;
-        if (ticketsGroupBy === "year") key = `${d.getFullYear()}`;
-        (acc[key] ||= []).push(t);
-        return acc;
-      },
-      {}
-    );
+  /* agrupar */
+  const grouped = ticketsByType.reduce((acc: Record<string, Ticket[]>, t) => {
+    const key = keyFromDate(new Date(t.fecha_compra), ticketsGroupBy);
+    (acc[key] ||= []).push(t);
+    return acc;
+  }, {});
 
-    const entries = Object.entries(grouped);
+  /* helpers */
+  const groupTotal = (arr: Ticket[]) => arr.reduce((s, t) => s + t.precio, 0);
 
-    return entries.sort(([a], [b]) => {
-      if (ticketsSortOrder === "newest") return b.localeCompare(a);
-      if (ticketsSortOrder === "oldest") return a.localeCompare(b);
-      return 0;
-    });
+  const keyToDate = (k: string): Date => {
+    switch (ticketsGroupBy) {
+      case "day":
+        return new Date(k); // mm/dd/yyyy local
+      case "week": {
+        const [y, w] = k.split("-W");
+        return new Date(Number(y), 0, 1 + (Number(w) - 1) * 7);
+      }
+      case "month": {
+        const [y, m] = k.split("-");
+        return new Date(Number(y), Number(m) - 1, 1);
+      }
+      case "year":
+        return new Date(Number(k), 0, 1);
+    }
   };
+
+  /* ordenar */
+  return Object.entries(grouped).sort(([ka, va], [kb, vb]) => {
+    const dateA = keyToDate(ka).getTime();
+    const dateB = keyToDate(kb).getTime();
+
+    switch (ticketsSortOrder) {
+      case "newest":
+        return dateB - dateA;          // fechas
+      case "oldest":
+        return dateA - dateB;
+      case "desc":
+        return groupTotal(vb) - groupTotal(va); // monto Q
+      case "asc":
+        return groupTotal(va) - groupTotal(vb);
+      default:
+        return 0;
+    }
+  });
+};
 
   /* ---------- ISO WEEK helper ---------- */
   const getISOWeek = (date: Date) => {
@@ -324,9 +345,12 @@ export default function Ingresos_ventas_page() {
 
   /* ---------- PDF Resumen Ventas ---------- */
   const exportSalesPDF = () => {
-    const doc = new jsPDF();
-    const pw = doc.internal.pageSize.getWidth();
-    const ph = doc.internal.pageSize.getHeight();
+  const doc = new jsPDF();
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const marginTop = 20;
+  const marginBottom = 20;
+  const watermark = () =>
     doc.addImage(
       "/marca_agua_logo_circular.png",
       "PNG",
@@ -338,32 +362,43 @@ export default function Ingresos_ventas_page() {
       "FAST"
     );
 
-    const titleMap: Record<SummaryFilter, string> = {
-      today: "Resumen de ventas del día",
-      month: "Resumen de ventas de los últimos 30 días",
-      year: "Resumen de ventas de los últimos 12 meses",
-      custom: `Resumen de ventas de ${customSalesStart} a ${customSalesEnd}`,
-    };
+  watermark();
 
-    doc.setFontSize(18);
-    doc.text(titleMap[salesFilter], 10, 20);
-
-    let y = 30;
-    Object.entries(aggregatedSalesSummary)
-      .sort(getSummaryComparator(salesSortOrder, salesGroupBy))
-      .forEach(([k, v]) => {
-        doc.text(`${formatKey(k, salesGroupBy)}: Q ${v}.00`, 10, y);
-        y += 8;
-      });
-
-    doc.save(`Ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
+  const titleMap: Record<SummaryFilter, string> = {
+    today: "Resumen de ventas del día",
+    month: "Resumen de ventas de los últimos 30 días",
+    year: "Resumen de ventas de los últimos 12 meses",
+    custom: `Resumen de ventas de ${customSalesStart} a ${customSalesEnd}`,
   };
+
+  doc.setFontSize(18);
+  doc.text(titleMap[salesFilter], 10, marginTop);
+  let y = marginTop + 10;
+
+  Object.entries(aggregatedSalesSummary)
+    .sort(getSummaryComparator(salesSortOrder, salesGroupBy))
+    .forEach(([k, v]) => {
+      if (y > ph - marginBottom) {
+        doc.addPage();
+        watermark();
+        y = marginTop;
+      }
+      doc.setFontSize(12);
+      doc.text(`${formatKey(k, salesGroupBy)}: Q ${v}.00`, 10, y);
+      y += 8;
+    });
+
+  doc.save(`Ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
+};
 
   /* ---------- PDF Tickets Vendidos ---------- */
   const exportTicketsPDF = () => {
-    const doc = new jsPDF();
-    const pw = doc.internal.pageSize.getWidth();
-    const ph = doc.internal.pageSize.getHeight();
+  const doc = new jsPDF();
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const marginTop = 20;
+  const marginBottom = 20;
+  const watermark = () =>
     doc.addImage(
       "/marca_agua_logo_circular.png",
       "PNG",
@@ -375,38 +410,58 @@ export default function Ingresos_ventas_page() {
       "FAST"
     );
 
-    const title =
-      ticketTypeFilter === "todos"
-        ? "Resumen de tickets (todos los tipos)"
-        : `Resumen de tickets tipo ${ticketTypeFilter}`;
+  watermark();
 
-    doc.setFontSize(18);
-    doc.text(title, 10, 20);
+  const title =
+    ticketTypeFilter === "todos"
+      ? "Resumen de tickets (todos los tipos)"
+      : `Resumen de tickets tipo ${ticketTypeFilter}`;
 
-    let y = 30;
-    getGroupedAndSortedTickets().forEach(([date, arr]) => {
-      doc.text(formatKey(date, ticketsGroupBy), 10, y);
-      y += 7;
-      arr.forEach((t) => {
-        doc.setFontSize(10);
-        doc.text(
-          `${new Date(t.fecha_compra).toLocaleTimeString()} - ${t.tipo_ticket}: Q ${t.precio}.00`,
-          14,
-          y
-        );
-        y += 6;
-      });
-      const total = arr.reduce((s, t) => s + t.precio, 0);
-      doc.setFontSize(11);
-      doc.text(`Total: ${arr.length} tickets - Q ${total}.00`, 10, y);
-      y += 10;
+  doc.setFontSize(18);
+  doc.text(title, 10, marginTop);
+  let y = marginTop + 10;
+
+  getGroupedAndSortedTickets().forEach(([date, arr]) => {
+    if (y > ph - marginBottom) {
+      doc.addPage();
+      watermark();
+      y = marginTop;
+    }
+
+    doc.setFontSize(12);
+    doc.text(formatKey(date, ticketsGroupBy), 10, y);
+    y += 7;
+
+    arr.forEach((t) => {
+      if (y > ph - marginBottom) {
+        doc.addPage();
+        watermark();
+        y = marginTop;
+      }
+      doc.setFontSize(10);
+      doc.text(
+        `${new Date(t.fecha_compra).toLocaleTimeString()} - ${t.tipo_ticket}: Q ${t.precio}.00`,
+        14,
+        y
+      );
+      y += 6;
     });
 
-    doc.save(
-      `Tickets_${ticketTypeFilter}_${new Date().toISOString().slice(0, 10)}.pdf`
-    );
-  };
+    const total = arr.reduce((s, t) => s + t.precio, 0);
+    if (y > ph - marginBottom) {
+      doc.addPage();
+      watermark();
+      y = marginTop;
+    }
+    doc.setFontSize(11);
+    doc.text(`Total: ${arr.length} tickets - Q ${total}.00`, 10, y);
+    y += 10;
+  });
 
+  doc.save(
+    `Tickets_${ticketTypeFilter}_${new Date().toISOString().slice(0, 10)}.pdf`
+  );
+};
   /* ---------- EFFECTS ---------- */
   useEffect(() => {
     fetchTickets(salesFilter, customSalesStart, customSalesEnd, setSalesTickets);
@@ -668,6 +723,8 @@ export default function Ingresos_ventas_page() {
                 >
                   <option value="newest">Más reciente primero</option>
                   <option value="oldest">Más antiguo primero</option>
+                  <option value="desc">Mayor a menor</option>   {/* nuevo */}
+                  <option value="asc">Menor a mayor</option>    {/* nuevo */}
                 </select>
               </div>
             </div>
