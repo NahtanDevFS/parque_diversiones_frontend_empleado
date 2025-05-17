@@ -517,3 +517,13 @@
 .tickets-by-type .filter-controls {
   margin: 10px 0;
 }
+
+.button_ventas {
+  background: rgba(255, 157, 0, 0.9);
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold
+}
