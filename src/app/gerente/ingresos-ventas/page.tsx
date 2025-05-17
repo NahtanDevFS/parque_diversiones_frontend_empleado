@@ -337,9 +337,29 @@ export default function Ingresos_ventas_page() {
       });
     }
     if (group === "week") {
-      const [y, w] = key.split("-W");
-      return `Semana ${w} - ${y}`;
-    }
+    // key = "2025-W17"
+    const [y, w] = key.split("-W").map(Number);
+
+    // Obtener lunes de la semana ISO
+    const monday = new Date(y, 0, 1 + (w - 1) * 7);
+    while (monday.getDay() !== 1) monday.setDate(monday.getDate() - 1);
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    const diaInicio = monday.getDate();
+    const diaFin = sunday.getDate();
+
+    const mesInicio = monday.toLocaleString("es", { month: "short" });
+    const mesFin = sunday.toLocaleString("es", { month: "short" });
+
+    const rango =
+      mesInicio === mesFin
+        ? `${diaInicio}-${diaFin} ${mesInicio}`
+        : `${diaInicio} ${mesInicio}-${diaFin} ${mesFin}`;
+
+    return `Semana ${w} (${rango}) - ${y}`;
+  }
     return key;
   };
 
