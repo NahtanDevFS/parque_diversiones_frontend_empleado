@@ -47,6 +47,7 @@ export default function Ingresos_ventas_page() {
   const [chartFilter, setChartFilter] = useState<ChartFilter>("week");
   const [customChartStart, setCustomChartStart] = useState("");
   const [customChartEnd, setCustomChartEnd] = useState("");
+  const [chartGroupBy, setChartGroupBy] = useState<GroupBy>("day");
   const [chartTickets, setChartTickets] = useState<Ticket[]>([]);
 
   /* === Totales rápidos === */
@@ -246,7 +247,7 @@ export default function Ingresos_ventas_page() {
   );
 
   /* ---------- Gráfica ---------- */
-  const fetchChartTickets = async (filter: ChartFilter) => {
+   const fetchChartTickets = async (filter: ChartFilter) => {
     const now = new Date();
     let startDate: Date;
     let endDate: Date | undefined;
@@ -282,11 +283,28 @@ export default function Ingresos_ventas_page() {
     if (data) setChartTickets(data as Ticket[]);
   };
 
+  const keyFromDate = (d: Date, group: GroupBy) => {
+    switch (group) {
+      case "day":
+        return d.toLocaleDateString();
+      case "week":
+        return `${d.getFullYear()}-W${getISOWeek(d).toString().padStart(2, "0")}`;
+      case "month":
+        return `${d.getFullYear()}-${(d.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}`;
+      case "year":
+        return `${d.getFullYear()}`;
+    }
+  };
+
   const aggregatedChart = chartTickets.reduce((acc: Record<string, number>, t) => {
-    const d = new Date(t.fecha_compra).toLocaleDateString();
-    acc[d] = (acc[d] || 0) + t.precio;
+    const key = keyFromDate(new Date(t.fecha_compra), chartGroupBy);
+    acc[key] = (acc[key] || 0) + t.precio;
     return acc;
   }, {});
+
+  
 
   /* ---------- Helpers formato ---------- */
   const formatKey = (key: string, group: GroupBy) => {
@@ -688,6 +706,7 @@ export default function Ingresos_ventas_page() {
           <section className="chart-section">
             <h2>Gráfica de Ventas</h2>
             <div className="chart-filters">
+              <div className="chart-tabs">
               {(["week", "month", "year", "custom"] as ChartFilter[]).map((f) => (
                 <button
                   key={f}
@@ -703,6 +722,20 @@ export default function Ingresos_ventas_page() {
                     : "Personalizado"}
                 </button>
               ))}
+              </div>
+              {/* NUEVO COMBOBOX AGRUPAR */}
+              <div className="group-by-control">
+                <label>Agrupar por:</label>
+                <select
+                  value={chartGroupBy}
+                  onChange={(e) => setChartGroupBy(e.target.value as GroupBy)}
+                >
+                  <option value="day">Día</option>
+                  <option value="week">Semana</option>
+                  <option value="month">Mes</option>
+                  <option value="year">Año</option>
+                </select>
+              </div>
             </div>
 
             {chartFilter === "custom" && (

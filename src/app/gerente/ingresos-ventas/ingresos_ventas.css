@@ -275,6 +275,7 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   gap: 10px;
   background-color: rgba(255, 186, 8, 0.5);
   width: 100%;
@@ -283,6 +284,19 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+.chart-tabs {
+  margin: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(255, 186, 8, 0.5);
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 /* Estilos base para botones de pestañas */
 .tab-button {
   flex: 1;
@@ -415,6 +429,14 @@
     flex-direction: column;
     gap: 5px;
   }
+
+  .summary-filters {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
 }
 
 @media (max-width: 480px) {
@@ -510,6 +532,14 @@
 }
 
 /* Ajustes para los filtros en esta sección */
+
+.summary-filters {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
 .tickets-by-type .summary-filters {
   margin: 15px 0;
   background-color: rgba(255, 186, 8, 0.3);
