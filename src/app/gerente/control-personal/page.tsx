@@ -330,7 +330,7 @@ export default function ControlPersonalPage() {
                         <option value="operador">Operador</option>
                         <option value="vendedor">Vendedor</option>
                         <option value="mantenimiento">Mantenimiento</option>
-                        <option value="guardia de seguridad">Guardia de seguridad</option>
+                        <option value="control de acceso">Control de acceso</option>
                         {/* Agrega más opciones según tus datos */}
                     </select>
                 </div>
@@ -403,7 +403,7 @@ export default function ControlPersonalPage() {
                     className="employee_control_button"
                     onClick={() => handleGenerateReportPDF(employee)}
                   >
-                    Generar reporte de asistencias
+                    Ver asistencias
                   </button>
                   {/*<button
                     className="employee_control_button"

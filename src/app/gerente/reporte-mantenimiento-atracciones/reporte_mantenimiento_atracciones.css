@@ -164,6 +164,12 @@
     background-color: #e1ecff;
     border-left: 5px solid blue;
   }
+
+  /* ---------- Conteo de mantenimientos ---------- */
+  .conteo-mantenimientos {
+    margin-top: 12px;
+    color: #333;
+  }
   
   @media (max-width: 768px) {
     .cards-container {
