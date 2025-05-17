@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
 
+/* ---------------------------- Tipos e interfaces --------------------------- */
 interface Atraccion {
   id_atraccion: number;
   nombre: string;
@@ -25,230 +26,274 @@ interface FiltroPorAtraccion {
   fechaFin: string;
 }
 
+/* -------------------------------------------------------------------------- */
 export default function ReporteAtraccion() {
+  /* ------------------------------ Estados --------------------------------- */
   const [atracciones, setAtracciones] = useState<Atraccion[]>([]);
-  const [filtrosPorAtraccion, setFiltrosPorAtraccion] = useState<Record<number, FiltroPorAtraccion>>({});
+  const [filtrosPorAtraccion, setFiltrosPorAtraccion] = useState<
+    Record<number, FiltroPorAtraccion>
+  >({});
   const [filtroGeneral, setFiltroGeneral] = useState<FiltroFecha>('hoy');
   const [fechaInicioGeneral, setFechaInicioGeneral] = useState('');
   const [fechaFinGeneral, setFechaFinGeneral] = useState('');
 
+  const [usosGenerales, setUsosGenerales] = useState<Record<number, number>>({});
+  const [usosPorFiltro, setUsosPorFiltro] = useState<Record<number, number>>({});
+
   const [selectedStatus, setSelectedStatus] = useState<string>('En el almuerzo');
 
   const router = useRouter();
-  // Validación del token para proteger la ruta
-      useEffect(() => {
-        const storedSession = localStorage.getItem('employeeSession');
-        if (!storedSession) {
-          // Si no hay token, redireccionar a la página de inicio
-          router.push('/');
-          return;
+
+  /* ----------------------- Protección de la ruta -------------------------- */
+  useEffect(() => {
+    const storedSession = localStorage.getItem('employeeSession');
+    if (!storedSession) {
+      router.push('/');
+      return;
+    }
+
+    try {
+      const session = JSON.parse(storedSession);
+      const { id_puesto, id_empleado } = session;
+
+      (async () => {
+        if (id_puesto !== 6) {
+          await supabase
+            .from('empleado')
+            .update({ estado_actividad_empleado: 'En el módulo de reporte de atracciones' })
+            .eq('id_empleado', id_empleado);
         }
-        try {
-          const session = JSON.parse(storedSession);
+      })();
 
-          const { id_puesto, id_empleado } = session;
-          
-          // Función async para update
-          (async () => {
-            if (id_puesto !== 6) {
-              const { data, error } = await supabase
-                .from('empleado')
-                .update({ estado_actividad_empleado: 'En el módulo de reporte de atracciones' })
-                .eq('id_empleado', id_empleado);
-              if (error) console.error('Error al actualizar estado automático:', error);
-              else console.log('Estado automático actualizado:', data);
-            }
-          })();
+      if (id_puesto !== 3 && id_puesto !== 6) {
+        Swal.fire({
+          title: 'Acceso denegado',
+          text: 'No tienes permiso para acceder a ese módulo',
+          icon: 'error',
+          confirmButtonText: 'Ok',
+        }).then(() => router.push('/'));
+      }
+    } catch {
+      router.push('/');
+    }
+  }, [router]);
 
-          // Solo el gerente (id_puesto = 3) y administrador (id_puesto = 6) tiene acceso a esta página
-        if (session.id_puesto !== 3 && session.id_puesto !== 6) {
-             Swal.fire({
-              title: 'Acceso denegado',
-              text: 'No tienes permiso para acceder a ese módulo',
-              icon: 'error',
-              confirmButtonText: 'Ok'
-            }).then(() => {
-              router.push('/');
-            });
-          }
-        } catch (error) {
-          console.error("Error al parsear el token", error);
-          router.push('/');
-        }
-      }, [router]);
+  /* ------------ Actualizar estado manualmente desde el combobox ----------- */
+  const handleStatusUpdate = async () => {
+    const stored = localStorage.getItem('employeeSession');
+    if (!stored) return;
+    const { id_empleado } = JSON.parse(stored);
 
-    // Handler para actualizar estado desde el combobox
-      const handleStatusUpdate = async () => {
-        const stored = localStorage.getItem('employeeSession');
-        if (!stored) return;
-        const session = JSON.parse(stored);
-        await supabase
-          .from('empleado')
-          .update({ estado_actividad_empleado: selectedStatus })
-          .eq('id_empleado', session.id_empleado);
-        Swal.fire('Éxito', 'Estado actualizado a ' + selectedStatus, 'success');
-      };
+    await supabase
+      .from('empleado')
+      .update({ estado_actividad_empleado: selectedStatus })
+      .eq('id_empleado', id_empleado);
 
+    Swal.fire('Éxito', 'Estado actualizado a ' + selectedStatus, 'success');
+  };
+
+  /* --------------------------- Carga inicial ------------------------------ */
   useEffect(() => {
     fetchData();
   }, []);
 
-  const calcularRango = (atraccionId: number) => {
+  /* -------- Recalcular totales generales al cambiar el filtro ------------- */
+  useEffect(() => {
+    if (atracciones.length) fetchUsosGenerales();
+  }, [filtroGeneral, fechaInicioGeneral, fechaFinGeneral, atracciones]);
+
+  /* ------ Recalcular usos por tarjeta al cambiar su filtro individual ----- */
+  useEffect(() => {
+    if (!atracciones.length) return;
+    (async () => {
+      await Promise.all(
+        Object.keys(filtrosPorAtraccion).map(async (idStr) => {
+          const id = Number(idStr);
+          const { desde, hasta } = calcularRango(id);
+          if (!desde || !hasta) return;
+
+          const { count } = await supabase
+            .from('uso_atraccion')
+            .select('id_uso_atraccion', { count: 'exact', head: true })
+            .eq('id_atraccion', id)
+            .gte('fecha_ciclo_atraccion', desde)
+            .lte('fecha_ciclo_atraccion', hasta);
+
+          setUsosPorFiltro((prev) => ({ ...prev, [id]: count ?? 0 }));
+        }),
+      );
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtrosPorAtraccion]);
+
+  /* ----------------------------- Rangos ----------------------------------- */
+  const calcularRango = (id: number) => {
     const hoy = new Date();
     const hoyStr = hoy.toLocaleDateString('en-CA');
-    const filtro = filtrosPorAtraccion[atraccionId]?.filtro || 'hoy';
-    let desde = hoyStr;
-    let hasta = hoyStr;
+    const { filtro, fechaInicio, fechaFin } = filtrosPorAtraccion[id] ?? {
+      filtro: 'hoy',
+      fechaInicio: '',
+      fechaFin: '',
+    };
 
-    if (filtro === 'semana') {
-      const inicio = new Date();
-      inicio.setDate(hoy.getDate() - 7);
-      desde = inicio.toLocaleDateString('en-CA');
-    } else if (filtro === 'mes') {
-      const inicio = new Date();
-      inicio.setMonth(hoy.getMonth() - 1);
-      desde = inicio.toLocaleDateString('en-CA');
-    } else if (filtro === 'anio') {
-      const inicio = new Date();
-      inicio.setFullYear(hoy.getFullYear() - 1);
-      desde = inicio.toLocaleDateString('en-CA');
-    } else if (filtro === 'personalizado') {
-      desde = filtrosPorAtraccion[atraccionId]?.fechaInicio || hoyStr;
-      hasta = filtrosPorAtraccion[atraccionId]?.fechaFin || hoyStr;
+    switch (filtro) {
+      case 'semana': {
+        const inicio = new Date();
+        inicio.setDate(hoy.getDate() - 7);
+        return { desde: inicio.toLocaleDateString('en-CA'), hasta: hoyStr };
+      }
+      case 'mes': {
+        const inicio = new Date();
+        inicio.setMonth(hoy.getMonth() - 1);
+        return { desde: inicio.toLocaleDateString('en-CA'), hasta: hoyStr };
+      }
+      case 'anio': {
+        const inicio = new Date();
+        inicio.setFullYear(hoy.getFullYear() - 1);
+        return { desde: inicio.toLocaleDateString('en-CA'), hasta: hoyStr };
+      }
+      case 'personalizado':
+        return { desde: fechaInicio, hasta: fechaFin };
+      default:
+        return { desde: hoyStr, hasta: hoyStr };
     }
-
-    return { desde, hasta };
   };
 
   const calcularRangoGeneral = () => {
     const hoy = new Date();
     const hoyStr = hoy.toLocaleDateString('en-CA');
-    let desde = hoyStr;
-    let hasta = hoyStr;
 
-    if (filtroGeneral === 'semana') {
-      const inicio = new Date();
-      inicio.setDate(hoy.getDate() - 7);
-      desde = inicio.toLocaleDateString('en-CA');
-    } else if (filtroGeneral === 'mes') {
-      const inicio = new Date();
-      inicio.setMonth(hoy.getMonth() - 1);
-      desde = inicio.toLocaleDateString('en-CA');
-    } else if (filtroGeneral === 'anio') {
-      const inicio = new Date();
-      inicio.setFullYear(hoy.getFullYear() - 1);
-      desde = inicio.toLocaleDateString('en-CA');
-    } else if (filtroGeneral === 'personalizado') {
-      desde = fechaInicioGeneral || hoyStr;
-      hasta = fechaFinGeneral || hoyStr;
+    switch (filtroGeneral) {
+      case 'semana': {
+        const inicio = new Date();
+        inicio.setDate(hoy.getDate() - 7);
+        return { desde: inicio.toLocaleDateString('en-CA'), hasta: hoyStr };
+      }
+      case 'mes': {
+        const inicio = new Date();
+        inicio.setMonth(hoy.getMonth() - 1);
+        return { desde: inicio.toLocaleDateString('en-CA'), hasta: hoyStr };
+      }
+      case 'anio': {
+        const inicio = new Date();
+        inicio.setFullYear(hoy.getFullYear() - 1);
+        return { desde: inicio.toLocaleDateString('en-CA'), hasta: hoyStr };
+      }
+      case 'personalizado':
+        return { desde: fechaInicioGeneral, hasta: fechaFinGeneral };
+      default:
+        return { desde: hoyStr, hasta: hoyStr };
     }
-
-    return { desde, hasta };
   };
 
+  /* ---------------------- Cargar atracciones y métricas ------------------- */
   const fetchData = async () => {
     const { data: atraccionesData, error } = await supabase
       .from('atraccion')
       .select('id_atraccion, nombre, juego_foto');
 
-    if (error) {
-      console.error('Error al obtener atracciones:', error.message);
-      return;
-    }
+    if (error || !atraccionesData) return;
 
-    if (!atraccionesData) return;
+    const filtrosTemp: Record<number, FiltroPorAtraccion> = {};
+    const tarjetas: Atraccion[] = [];
+    const inicialUsosFiltro: Record<number, number> = {};
 
-    const filtros: Record<number, FiltroPorAtraccion> = {};
-    const atraccionesConUsos: Atraccion[] = [];
+    const hoyStr = new Date().toLocaleDateString('en-CA');
+    const semanaStr = new Date(Date.now() - 7 * 864e5).toLocaleDateString('en-CA');
+    const mesStr = new Date(Date.now() - 30 * 864e5).toLocaleDateString('en-CA');
 
-    const hoy = new Date();
-    const hoyStr = hoy.toLocaleDateString('en-CA');
-    const semana = new Date(hoy);
-    semana.setDate(hoy.getDate() - 7);
-    const semanaStr = semana.toLocaleDateString('en-CA');
-    const mes = new Date(hoy);
-    mes.setDate(hoy.getDate() - 30);
-    const mesStr = mes.toLocaleDateString('en-CA');
-
-    for (const atraccion of atraccionesData) {
-      filtros[atraccion.id_atraccion] = {
-        filtro: 'hoy',
-        fechaInicio: '',
-        fechaFin: '',
-      };
+    for (const a of atraccionesData) {
+      filtrosTemp[a.id_atraccion] = { filtro: 'hoy', fechaInicio: '', fechaFin: '' };
 
       const usosHoy = await supabase
         .from('uso_atraccion')
         .select('id_uso_atraccion', { count: 'exact', head: true })
-        .eq('id_atraccion', atraccion.id_atraccion)
+        .eq('id_atraccion', a.id_atraccion)
         .eq('fecha_ciclo_atraccion', hoyStr);
 
       const usosSemana = await supabase
         .from('uso_atraccion')
         .select('id_uso_atraccion', { count: 'exact', head: true })
-        .eq('id_atraccion', atraccion.id_atraccion)
+        .eq('id_atraccion', a.id_atraccion)
         .gte('fecha_ciclo_atraccion', semanaStr);
 
       const usosMes = await supabase
         .from('uso_atraccion')
         .select('id_uso_atraccion', { count: 'exact', head: true })
-        .eq('id_atraccion', atraccion.id_atraccion)
+        .eq('id_atraccion', a.id_atraccion)
         .gte('fecha_ciclo_atraccion', mesStr);
 
-      atraccionesConUsos.push({
-        ...atraccion,
+      tarjetas.push({
+        ...a,
         usos_hoy: usosHoy.count || 0,
         usos_semana: usosSemana.count || 0,
         usos_mes: usosMes.count || 0,
       });
+
+      inicialUsosFiltro[a.id_atraccion] = usosHoy.count || 0;
     }
 
-    setAtracciones(atraccionesConUsos);
-    setFiltrosPorAtraccion(filtros);
+    setAtracciones(tarjetas);
+    setFiltrosPorAtraccion(filtrosTemp);
+    setUsosPorFiltro(inicialUsosFiltro);
   };
 
-  const handleFiltroChange = (id: number, field: keyof FiltroPorAtraccion, value: string) => {
+  /* --------------- Totales generales para el bloque superior -------------- */
+  const fetchUsosGenerales = async () => {
+    const { desde, hasta } = calcularRangoGeneral();
+    const nuevos: Record<number, number> = {};
+
+    await Promise.all(
+      atracciones.map(async (a) => {
+        const { count } = await supabase
+          .from('uso_atraccion')
+          .select('id_uso_atraccion', { count: 'exact', head: true })
+          .eq('id_atraccion', a.id_atraccion)
+          .gte('fecha_ciclo_atraccion', desde)
+          .lte('fecha_ciclo_atraccion', hasta);
+
+        nuevos[a.id_atraccion] = count ?? 0;
+      }),
+    );
+
+    setUsosGenerales(nuevos);
+  };
+
+  /* ------------- Manejar cambio en filtro individual por tarjeta ---------- */
+  const handleFiltroChange = (id: number, key: keyof FiltroPorAtraccion, value: string) => {
     setFiltrosPorAtraccion((prev) => ({
       ...prev,
-      [id]: {
-        ...prev[id],
-        [field]: value,
-      },
+      [id]: { ...prev[id], [key]: value },
     }));
   };
 
-  const exportarPDFIndividual = async (atraccion: Atraccion) => {
-    const { desde, hasta } = calcularRango(atraccion.id_atraccion);
+  /* ------------------------------- PDF ------------------------------------ */
+  const exportarPDFIndividual = async (a: Atraccion) => {
+    const { desde, hasta } = calcularRango(a.id_atraccion);
 
-    const { data: usos, error } = await supabase
+    const { data } = await supabase
       .from('uso_atraccion')
       .select('fecha_ciclo_atraccion, hora_ciclo_atraccion')
-      .eq('id_atraccion', atraccion.id_atraccion)
+      .eq('id_atraccion', a.id_atraccion)
       .gte('fecha_ciclo_atraccion', desde)
       .lte('fecha_ciclo_atraccion', hasta);
 
-    if (error) {
-      console.error('Error al obtener usos:', error.message);
-      return;
-    }
-
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(`Reporte de Usos - ${atraccion.nombre}`, 10, 15);
-    doc.setFontSize(12);
-    doc.text(`Fecha de reporte: ${new Date().toLocaleDateString()}`, 10, 25);
-    doc.text(`Filtrado desde: ${desde} hasta: ${hasta}`, 10, 35);
-    doc.text(`Cantidad de veces usada: ${usos?.length ?? 0}`, 10, 45);
+    doc.setFontSize(16).text(`Reporte de Usos - ${a.nombre}`, 10, 15);
+    doc.setFontSize(12)
+      .text(`Fecha de reporte: ${new Date().toLocaleDateString()}`, 10, 25)
+      .text(`Filtrado desde: ${desde} hasta: ${hasta}`, 10, 35)
+      .text(`Cantidad de veces usada: ${data?.length ?? 0}`, 10, 45);
 
     let y = 60;
     doc.text('Fecha', 10, y);
     doc.text('Hora', 80, y);
     y += 10;
 
-    if (usos && usos.length > 0) {
-      usos.forEach((uso) => {
-        doc.text(uso.fecha_ciclo_atraccion, 10, y);
-        doc.text(uso.hora_ciclo_atraccion, 80, y);
+    if (data && data.length) {
+      data.forEach((u) => {
+        doc.text(u.fecha_ciclo_atraccion, 10, y);
+        doc.text(u.hora_ciclo_atraccion, 80, y);
         y += 10;
         if (y > 270) {
           doc.addPage();
@@ -256,73 +301,69 @@ export default function ReporteAtraccion() {
         }
       });
     } else {
-      doc.text('No hay registros de uso en el periodo seleccionado.', 10, y);
+      doc.text('No hay registros en el rango.', 10, y);
     }
 
-    doc.save(`reporte_${atraccion.nombre.replaceAll(' ', '_')}.pdf`);
+    doc.save(`reporte_${a.nombre.replaceAll(' ', '_')}.pdf`);
   };
 
   const exportarPDFGeneral = () => {
     const { desde, hasta } = calcularRangoGeneral();
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text('Reporte General de Atracciones', 10, 15);
-    doc.setFontSize(12);
-    doc.text(`Fecha de reporte: ${new Date().toLocaleDateString()}`, 10, 25);
-    doc.text(`Rango aplicado: ${desde} a ${hasta}`, 10, 35);
 
-    let y = 60;
-    doc.text('Cantidad de veces usada', 90, y-10);
-    doc.text('Nombre', 10, y);
-    doc.text('Hoy', 80, y);
-    doc.text('Semana', 110, y);
-    doc.text('Mes', 150, y);
-    y += 10;
+    const doc = new jsPDF();
+    doc.setFontSize(16).text('Reporte General de Atracciones', 10, 15);
+    doc.setFontSize(12)
+      .text(`Fecha de reporte: ${new Date().toLocaleDateString()}`, 10, 25)
+      .text(`Rango aplicado: ${desde} a ${hasta}`, 10, 35);
+
+    let y = 55;
+    doc.text('Nombre de la atracción', 10, y);
+    doc.text('Usos', 160, y, { align: 'right' });
+    y += 8;
+    doc.line(10, y, 200, y);
+    y += 6;
 
     atracciones.forEach((a) => {
+      const total = usosGenerales[a.id_atraccion] ?? 0;
       doc.text(a.nombre, 10, y);
-      doc.text(a.usos_hoy.toString(), 80, y);
-      doc.text(a.usos_semana.toString(), 110, y);
-      doc.text(a.usos_mes.toString(), 150, y);
-      y += 10;
+      doc.text(total.toString(), 160, y, { align: 'right' });
+      y += 8;
       if (y > 270) {
         doc.addPage();
         y = 20;
       }
     });
 
-    doc.save('reporte_general_atracciones.pdf');
+    doc.save(`reporte_atracciones_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  /* -------------------------------- UI ------------------------------------ */
   return (
     <LayoutWithSidebar>
       <div className='reporte_atraccion_page'>
-
-        {/*SELECCIÓN DE ESTADO*/}
-          <div className="estado-row">
-            <h4>Opciones para notificar cese de actividades:</h4>
-            <select
-              value={selectedStatus}
-              onChange={e => setSelectedStatus(e.target.value)}
-            >
-              <option value="En el almuerzo">En el almuerzo</option>
-              <option value="Turno cerrado">Turno cerrado</option>
-              <option value="Ausencia temporal">Ausencia temporal</option>
-            </select>
-            <button onClick={handleStatusUpdate} className="button_ventas">
-              Actualizar estado
-            </button>
-          </div>
+        {/* ---------- Barra de estado del empleado ---------- */}
+        <div className='estado-row'>
+          <h4>Opciones para notificar cese de actividades:</h4>
+          <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+            <option value='En el almuerzo'>En el almuerzo</option>
+            <option value='Turno cerrado'>Turno cerrado</option>
+            <option value='Ausencia temporal'>Ausencia temporal</option>
+          </select>
+          <button onClick={handleStatusUpdate} className='button_ventas'>
+            Actualizar estado
+          </button>
+        </div>
 
         <h2 className='titulo_reporte'>Reporte de Uso de Atracciones</h2>
 
+        {/* ------------------ Contenedor de filtros generales ---------------- */}
         <div className='filtros-container'>
           <p>Filtrar reporte general por:</p>
           <select value={filtroGeneral} onChange={(e) => setFiltroGeneral(e.target.value as FiltroFecha)}>
             <option value='hoy'>Hoy</option>
             <option value='semana'>Últimos 7 días</option>
-            <option value='mes'>Último mes</option>
-            <option value='anio'>Último año</option>
+            <option value='mes'>Últimos 30 días</option>
+            <option value='anio'>Últimos 12 meses</option>
             <option value='personalizado'>Rango personalizado</option>
           </select>
 
@@ -334,24 +375,36 @@ export default function ReporteAtraccion() {
           )}
 
           <button className='export-btn' onClick={exportarPDFGeneral}>
-            Exportar todos en un solo PDF
+            Exportar PDF
           </button>
+
+          {/* ---------- Totales por atracción en el rango general ---------- */}
+          <div className='totales-usos'>
+            {atracciones.map((a) => (
+              <p key={a.id_atraccion} className='totales-item'>
+                <strong>{a.nombre}:</strong> {usosGenerales[a.id_atraccion] ?? 0} usos
+              </p>
+            ))}
+          </div>
         </div>
 
+        {/* ----------------------- Tarjetas por atracción -------------------- */}
         <div className='atracciones-container'>
-          {atracciones.map((atraccion) => (
-            <div key={atraccion.id_atraccion} className='atraccion-card'>
-              <img src={atraccion.juego_foto} alt={atraccion.nombre} className='atraccion-img' />
-              <h3>{atraccion.nombre}</h3>
-              <p className='veces-usada'>Usos hoy: <strong>{atraccion.usos_hoy}</strong></p>
-              <p className='veces-usada'>Usos última semana: <strong>{atraccion.usos_semana}</strong></p>
-              <p className='veces-usada'>Usos último mes: <strong>{atraccion.usos_mes}</strong></p>
+          {atracciones.map((a) => (
+            <div key={a.id_atraccion} className='atraccion-card'>
+              <img src={a.juego_foto} alt={a.nombre} className='atraccion-img' />
+              <h3>{a.nombre}</h3>
 
+              <p className='veces-usada'>Usos hoy: <strong>{a.usos_hoy}</strong></p>
+              <p className='veces-usada'>Usos última semana: <strong>{a.usos_semana}</strong></p>
+              <p className='veces-usada'>Usos último mes: <strong>{a.usos_mes}</strong></p>
+
+              {/* ---------------- Filtro individual ---------------- */}
               <div className='filtros-individuales'>
                 <p>Filtrar reporte por:</p>
                 <select
-                  value={filtrosPorAtraccion[atraccion.id_atraccion]?.filtro}
-                  onChange={(e) => handleFiltroChange(atraccion.id_atraccion, 'filtro', e.target.value)}
+                  value={filtrosPorAtraccion[a.id_atraccion]?.filtro}
+                  onChange={(e) => handleFiltroChange(a.id_atraccion, 'filtro', e.target.value)}
                 >
                   <option value='hoy'>Hoy</option>
                   <option value='semana'>Últimos 7 días</option>
@@ -360,27 +413,28 @@ export default function ReporteAtraccion() {
                   <option value='personalizado'>Rango personalizado</option>
                 </select>
 
-                {filtrosPorAtraccion[atraccion.id_atraccion]?.filtro === 'personalizado' && (
+                {filtrosPorAtraccion[a.id_atraccion]?.filtro === 'personalizado' && (
                   <>
                     <input
                       type='date'
-                      value={filtrosPorAtraccion[atraccion.id_atraccion]?.fechaInicio}
-                      onChange={(e) =>
-                        handleFiltroChange(atraccion.id_atraccion, 'fechaInicio', e.target.value)
-                      }
+                      value={filtrosPorAtraccion[a.id_atraccion]?.fechaInicio}
+                      onChange={(e) => handleFiltroChange(a.id_atraccion, 'fechaInicio', e.target.value)}
                     />
                     <input
                       type='date'
-                      value={filtrosPorAtraccion[atraccion.id_atraccion]?.fechaFin}
-                      onChange={(e) =>
-                        handleFiltroChange(atraccion.id_atraccion, 'fechaFin', e.target.value)
-                      }
+                      value={filtrosPorAtraccion[a.id_atraccion]?.fechaFin}
+                      onChange={(e) => handleFiltroChange(a.id_atraccion, 'fechaFin', e.target.value)}
                     />
                   </>
                 )}
               </div>
 
-              <button className='export-btn' onClick={() => exportarPDFIndividual(atraccion)}>
+              {/* ---------- Texto con usos del rango individual ---------- */}
+              <p className='usos-individual'>
+                <strong>{a.nombre}:</strong> {usosPorFiltro[a.id_atraccion] ?? 0} usos
+              </p>
+
+              <button className='export-btn' onClick={() => exportarPDFIndividual(a)}>
                 Reporte en PDF
               </button>
             </div>
