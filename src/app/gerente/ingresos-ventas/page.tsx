@@ -322,8 +322,8 @@ export default function Ingresos_ventas_page() {
 
     const titleMap: Record<SummaryFilter, string> = {
       today: "Resumen de ventas del día",
-      month: "Resumen de ventas del último mes",
-      year: "Resumen de ventas del último año",
+      month: "Resumen de ventas de los últimos 30 días",
+      year: "Resumen de ventas de los últimos 12 meses",
       custom: `Resumen de ventas de ${customSalesStart} a ${customSalesEnd}`,
     };
 
