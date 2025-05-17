@@ -231,3 +231,15 @@
     font-size: 0.9rem;
   }
 }
+
+/* checkbox */
+.toggle-table {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.toggle-table input {
+  accent-color: rgba(255, 115, 0, 1);
+}

@@ -14,23 +14,21 @@ type SortOrder = "newest" | "oldest" | "desc" | "asc";
 export default function ReporteVisitantes() {
   const router = useRouter();
 
-  /* datos y filtros */
+  /* ---------- estados principales ---------- */
   const [visitantes, setVisitantes] = useState<any[]>([]);
   const [filtro, setFiltro] = useState("hoy");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
 
-  /* agrupar / ordenar */
   const [visitGroupBy, setVisitGroupBy] = useState<GroupBy>("day");
   const [visitSortOrder, setVisitSortOrder] = useState<SortOrder>("newest");
+  const [showTable, setShowTable] = useState(true);
 
-  /* totales rápidos */
   const [conteos, setConteos] = useState({ hoy: 0, semana: 0, mes: 0 });
 
-  /* estado empleado */
   const [selectedStatus, setSelectedStatus] = useState("En el almuerzo");
 
-  /* ---------- SESIÓN (sin cambios grandes) ---------- */
+  /* ---------- sesión y acceso ---------- */
   useEffect(() => {
     const stored = localStorage.getItem("employeeSession");
     if (!stored) return void router.push("/");
@@ -46,12 +44,9 @@ export default function ReporteVisitantes() {
           .eq("id_empleado", id_empleado);
       }
       if (id_puesto !== 3 && id_puesto !== 6) {
-        Swal.fire({
-          title: "Acceso denegado",
-          text: "No tienes permiso para acceder a este módulo",
-          icon: "error",
-          confirmButtonText: "Ok",
-        }).then(() => router.push("/"));
+        Swal.fire("Acceso denegado", "No tienes permiso", "error").then(() =>
+          router.push("/")
+        );
       }
     } catch {
       router.push("/");
@@ -69,13 +64,14 @@ export default function ReporteVisitantes() {
     Swal.fire("Éxito", "Estado actualizado", "success");
   };
 
-  /* ---------- helpers de fecha ---------- */
+  /* ---------- helpers fecha ---------- */
   const getISOWeek = (d: Date) => {
     const tmp = new Date(d.valueOf());
     tmp.setDate(tmp.getDate() - ((d.getDay() + 6) % 7) + 3);
     const firstThu = tmp.valueOf();
     tmp.setMonth(0, 1);
-    if (tmp.getDay() !== 4) tmp.setMonth(0, 1 + ((4 - tmp.getDay() + 7) % 7));
+    if (tmp.getDay() !== 4)
+      tmp.setMonth(0, 1 + ((4 - tmp.getDay() + 7) % 7));
     return 1 + Math.ceil((firstThu - tmp.valueOf()) / 604800000);
   };
 
@@ -84,7 +80,9 @@ export default function ReporteVisitantes() {
       case "day":
         return d.toLocaleDateString();
       case "week":
-        return `${d.getFullYear()}-W${getISOWeek(d).toString().padStart(2, "0")}`;
+        return `${d.getFullYear()}-W${getISOWeek(d)
+          .toString()
+          .padStart(2, "0")}`;
       case "month":
         return `${d.getFullYear()}-${(d.getMonth() + 1)
           .toString()
@@ -117,33 +115,24 @@ export default function ReporteVisitantes() {
     return k;
   };
 
-  /* ---------- rangos ---------- */
-  useEffect(() => {
-    fetchData();
-  }, [filtro, fechaInicio, fechaFin]);
-
-  useEffect(() => {
-    contarVisitantes();
-  }, []);
-
+  /* ---------- rango filters ---------- */
   const calcularRango = () => {
     const hoy = new Date();
-    const hoyStr = hoy.toLocaleDateString("en-CA");
-    let desde = hoyStr,
-      hasta = hoyStr;
-
+    const f = (d: Date) => d.toLocaleDateString("en-CA");
+    let desde = f(hoy),
+      hasta = f(hoy);
     if (filtro === "semana") {
       const d = new Date();
       d.setDate(hoy.getDate() - 7);
-      desde = d.toLocaleDateString("en-CA");
+      desde = f(d);
     } else if (filtro === "mes") {
       const d = new Date();
       d.setMonth(hoy.getMonth() - 1);
-      desde = d.toLocaleDateString("en-CA");
+      desde = f(d);
     } else if (filtro === "anio") {
       const d = new Date();
       d.setFullYear(hoy.getFullYear() - 1);
-      desde = d.toLocaleDateString("en-CA");
+      desde = f(d);
     } else if (filtro === "personalizado") {
       desde = fechaInicio;
       hasta = fechaFin;
@@ -151,7 +140,15 @@ export default function ReporteVisitantes() {
     return { desde: `${desde}T00:00:00`, hasta: `${hasta}T23:59:59` };
   };
 
-  async function fetchData() {
+  /* ---------- fetch & contadores ---------- */
+  useEffect(() => {
+    (async () => {
+      await fetchData();
+      await contarVisitantes();
+    })();
+  }, [filtro, fechaInicio, fechaFin]);
+
+  const fetchData = async () => {
     const { desde, hasta } = calcularRango();
     const { data } = await supabase
       .from("control_acceso_visitante")
@@ -159,33 +156,37 @@ export default function ReporteVisitantes() {
       .gte("fecha_hora_visita", desde)
       .lte("fecha_hora_visita", hasta);
     if (data) setVisitantes(data);
-  }
+  };
 
-  async function contarVisitantes() {
+  const contarVisitantes = async () => {
     const hoy = new Date().toLocaleDateString("en-CA");
     const semana = new Date();
     semana.setDate(semana.getDate() - 7);
     const mes = new Date();
     mes.setDate(mes.getDate() - 30);
 
-    const [h, s, m] = await Promise.all([
+    const [{ count: h }, { count: s }, { count: m }] = await Promise.all([
       supabase
         .from("control_acceso_visitante")
-        .select("id_acceso", { count: "exact", head: true })
+        .select("*", { head: true, count: "exact" })
         .gte("fecha_hora_visita", `${hoy}T00:00:00`),
       supabase
         .from("control_acceso_visitante")
-        .select("id_acceso", { count: "exact", head: true })
-        .gte("fecha_hora_visita", `${semana.toLocaleDateString("en-CA")}T00:00:00`),
+        .select("*", { head: true, count: "exact" })
+        .gte(
+          "fecha_hora_visita",
+          `${semana.toLocaleDateString("en-CA")}T00:00:00`
+        ),
       supabase
         .from("control_acceso_visitante")
-        .select("id_acceso", { count: "exact", head: true })
+        .select("*", { head: true, count: "exact" })
         .gte("fecha_hora_visita", `${mes.toLocaleDateString("en-CA")}T00:00:00`),
     ]);
-    setConteos({ hoy: h.count || 0, semana: s.count || 0, mes: m.count || 0 });
-  }
 
-  /* ---------- ordenar plano ---------- */
+    setConteos({ hoy: h || 0, semana: s || 0, mes: m || 0 });
+  };
+
+  /* ---------- ordenar y agrupar ---------- */
   const flatSorted = [...visitantes].sort((a, b) => {
     const dA = new Date(a.fecha_hora_visita).getTime();
     const dB = new Date(b.fecha_hora_visita).getTime();
@@ -203,79 +204,84 @@ export default function ReporteVisitantes() {
     }
   });
 
-  /* ---------- agrupar ---------- */
   const grouped = flatSorted.reduce((acc: Record<string, any[]>, v) => {
-    const key = keyFromDate(new Date(v.fecha_hora_visita), visitGroupBy);
-    (acc[key] ||= []).push(v);
+    const k = keyFromDate(new Date(v.fecha_hora_visita), visitGroupBy);
+    (acc[k] ||= []).push(v);
     return acc;
   }, {});
 
-  /* orden de grupos */
-  const groupEntries = Object.entries(grouped).sort(([k1], [k2]) => {
-    const date1 = new Date(k1).getTime(); // válido para day; para otros usamos helpers
-    const date2 = new Date(k2).getTime();
-    const toDate = (k: string): number => {
-      switch (visitGroupBy) {
-        case "day":
-          return new Date(k).getTime();
-        case "week": {
-          const [y, w] = k.split("-W");
-          return new Date(Number(y), 0, 1 + (Number(w) - 1) * 7).getTime();
-        }
-        case "month": {
-          const [y, m] = k.split("-");
-          return new Date(Number(y), Number(m) - 1, 1).getTime();
-        }
-        case "year":
-          return new Date(Number(k), 0, 1).getTime();
+  const toDateKey = (k: string): number => {
+    switch (visitGroupBy) {
+      case "day":
+        return new Date(k).getTime();
+      case "week": {
+        const [y, w] = k.split("-W");
+        return new Date(Number(y), 0, 1 + (Number(w) - 1) * 7).getTime();
       }
-    };
-    const a = toDate(k1),
-      b = toDate(k2);
-    if (visitSortOrder === "oldest") return a - b;
-    return b - a; // newest / desc / asc => descendente por fecha
-  });
+      case "month": {
+        const [y, m] = k.split("-");
+        return new Date(Number(y), Number(m) - 1, 1).getTime();
+      }
+      case "year":
+        return new Date(Number(k), 0, 1).getTime();
+    }
+  };
 
-  /* ---------- PDF (sin cambios) ---------- */
+  const groupEntries = Object.entries(grouped).sort(([a], [b]) =>
+    visitSortOrder === "oldest" ? toDateKey(a) - toDateKey(b) : toDateKey(b) - toDateKey(a)
+  );
+
+  /* ---------- PDF export ---------- */
   const exportarPDF = () => {
-    const doc = new jsPDF();
-    const fechaHora = new Date().toLocaleString();
-    doc.setFontSize(16).text("Reporte de Visitantes", 10, 15);
-    doc.setFontSize(12).text(`Generado: ${fechaHora}`, 10, 25);
+    const doc = new jsPDF("p", "mm", "a4");
+    const pw = doc.internal.pageSize.getWidth();
+    const margin = 15;
 
-    let y = 35;
-    doc.text(`Total de visitas: ${flatSorted.length}`, 10, y);
-    y += 10;
+    doc.setFontSize(16).text("Listado de Visitantes", margin, 20);
+    doc.setFontSize(11).text(`Generado: ${new Date().toLocaleString()}`, margin, 27);
+    doc.setFontSize(11).text(`Total: ${flatSorted.length}`, margin, 34);
 
-    groupEntries.forEach(([key, arr]) => {
-      if (y > 270) {
+    let y = 42;
+
+    const lineOrBreak = (inc: number) => {
+      if (y + inc > 285) {
         doc.addPage();
         y = 20;
       }
-      doc.setFontSize(12).text(prettyKey(key, visitGroupBy), 10, y);
-      y += 8;
+      y += inc;
+    };
 
-      arr.forEach((v: any) => {
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        const ingreso = new Date(v.fecha_hora_visita).toLocaleString();
-        const salida = v.fecha_hora_salida
-          ? new Date(v.fecha_hora_salida).toLocaleString()
-          : "-";
+    groupEntries.forEach(([key, arr]) => {
+      doc.setFontSize(12).text(prettyKey(key, visitGroupBy), margin, y);
+      doc.setFontSize(12).text(`—  ${arr.length} visitas`, pw - margin - 40, y);
+      lineOrBreak(6);
+
+      if (showTable) {
         doc.setFontSize(10);
-        doc.text(
-          `${v.id_acceso}  ${ingreso}  ${salida}  ${v.numero_de_cliente || "-"}`,
-          14,
-          y
-        );
-        y += 6;
-      });
-      y += 4;
+        doc.text("ID", margin, y);
+        doc.text("Ingreso", margin + 15, y);
+        doc.text("Salida", margin + 75, y);
+        doc.text("Cliente", pw - margin - 20, y, { align: "right" });
+        lineOrBreak(5);
+
+        arr.forEach((v) => {
+          const ingreso = new Date(v.fecha_hora_visita).toLocaleString();
+          const salida = v.fecha_hora_salida
+            ? new Date(v.fecha_hora_salida).toLocaleString()
+            : "-";
+          doc.text(String(v.id_acceso), margin, y);
+          doc.text(ingreso, margin + 15, y);
+          doc.text(salida, margin + 75, y);
+          doc.text(String(v.numero_de_cliente || "-"), pw - margin - 20, y, {
+            align: "right",
+          });
+          lineOrBreak(5);
+        });
+        lineOrBreak(3);
+      }
     });
 
-    doc.save("reporte_visitantes.pdf");
+    doc.save("Listado_visitantes.pdf");
   };
 
   /* ---------- UI ---------- */
@@ -284,36 +290,22 @@ export default function ReporteVisitantes() {
       <div className="reporte_visitantes_page">
         {/* estado empleado */}
         <div className="estado-row">
-          <h4>Opciones para notificar cese de actividades:</h4>
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-          >
-            <option value="En el almuerzo">En el almuerzo</option>
-            <option value="Turno cerrado">Turno cerrado</option>
-            <option value="Ausencia temporal">Ausencia temporal</option>
+          <h4>Notificar cese de actividades:</h4>
+          <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+            <option>En el almuerzo</option>
+            <option>Turno cerrado</option>
+            <option>Ausencia temporal</option>
           </select>
-          <button onClick={handleStatusUpdate} className="button_ventas">
-            Actualizar estado
-          </button>
+          <button onClick={handleStatusUpdate} className="button_ventas">Actualizar estado</button>
         </div>
 
         <h2 className="titulo_reporte">Reporte de Visitantes</h2>
 
-        {/* cards conteo */}
+        {/* tarjetas */}
         <div className="cards-summary">
-          <div className="card_visitantes">
-            <h3>Visitantes Hoy</h3>
-            <p>{conteos.hoy}</p>
-          </div>
-          <div className="card_visitantes">
-            <h3>Esta Semana</h3>
-            <p>{conteos.semana}</p>
-          </div>
-          <div className="card_visitantes">
-            <h3>Este Mes</h3>
-            <p>{conteos.mes}</p>
-          </div>
+          <div className="card_visitantes"><h3>Visitantes Hoy</h3><p>{conteos.hoy}</p></div>
+          <div className="card_visitantes"><h3>Esta Semana</h3><p>{conteos.semana}</p></div>
+          <div className="card_visitantes"><h3>Este Mes</h3><p>{conteos.mes}</p></div>
         </div>
 
         {/* filtros */}
@@ -330,25 +322,14 @@ export default function ReporteVisitantes() {
 
             {filtro === "personalizado" && (
               <>
-                <input
-                  type="date"
-                  value={fechaInicio}
-                  onChange={(e) => setFechaInicio(e.target.value)}
-                />
-                <input
-                  type="date"
-                  value={fechaFin}
-                  onChange={(e) => setFechaFin(e.target.value)}
-                />
+                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} />
+                <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} />
               </>
             )}
 
             <div className="group-by-control">
               <label>Agrupar por:</label>
-              <select
-                value={visitGroupBy}
-                onChange={(e) => setVisitGroupBy(e.target.value as GroupBy)}
-              >
+              <select value={visitGroupBy} onChange={(e) => setVisitGroupBy(e.target.value as GroupBy)}>
                 <option value="day">Día</option>
                 <option value="week">Semana</option>
                 <option value="month">Mes</option>
@@ -358,26 +339,24 @@ export default function ReporteVisitantes() {
 
             <div className="sort-control">
               <label>Ordenar por:</label>
-              <select
-                value={visitSortOrder}
-                onChange={(e) =>
-                  setVisitSortOrder(e.target.value as SortOrder)
-                }
-              >
+              <select value={visitSortOrder} onChange={(e) => setVisitSortOrder(e.target.value as SortOrder)}>
                 <option value="newest">Más reciente primero</option>
                 <option value="oldest">Más antiguo primero</option>
-                <option value="desc">Mayor a menor (ID)</option>
-                <option value="asc">Menor a mayor (ID)</option>
+                {/*<option value="desc">Mayor a menor (ID)</option>
+                <option value="asc">Menor a mayor (ID)</option>*/}
               </select>
             </div>
 
-            <button className="export-btn" onClick={exportarPDF}>
-              Exportar a PDF
-            </button>
+            <label className="toggle-table">
+              <input type="checkbox" checked={showTable} onChange={() => setShowTable(!showTable)} />
+              Mostrar tabla
+            </label>
+
+            <button className="export-btn" onClick={exportarPDF}>Exportar a PDF</button>
           </div>
         </div>
 
-        {/* tabla agrupada */}
+        {/* listado */}
         <div className="summary">
           <div className="summary-header">
             <h2>Listado de Visitantes</h2>
@@ -385,9 +364,7 @@ export default function ReporteVisitantes() {
           </div>
 
           {groupEntries.length === 0 ? (
-            <p className="no-data">
-              No hay visitas registradas para la opción seleccionada.
-            </p>
+            <p className="no-data">No hay visitas registradas para la opción seleccionada.</p>
           ) : (
             groupEntries.map(([gKey, arr]) => (
               <div key={gKey}>
@@ -395,23 +372,21 @@ export default function ReporteVisitantes() {
                   {prettyKey(gKey, visitGroupBy)} — {arr.length} visitas
                 </div>
 
-                <div className="tabla-visitantes">
-                  <div className="tabla-header">
-                    <span>ID</span>
-                    <span>Ingreso</span>
-                    <span>Salida</span>
-                    <span>Cliente</span>
-                  </div>
-
-                  {arr.map((v) => (
-                    <div key={v.id_acceso} className="tabla-row">
-                      <span>{v.id_acceso}</span>
-                      <span>{v.fecha_hora_visita}</span>
-                      <span>{v.fecha_hora_salida || "-"}</span>
-                      <span>{v.numero_de_cliente || "-"}</span>
+                {showTable && (
+                  <div className="tabla-visitantes">
+                    <div className="tabla-header">
+                      <span>ID</span><span>Ingreso</span><span>Salida</span><span>Cliente</span>
                     </div>
-                  ))}
-                </div>
+                    {arr.map((v) => (
+                      <div key={v.id_acceso} className="tabla-row">
+                        <span>{v.id_acceso}</span>
+                        <span>{v.fecha_hora_visita}</span>
+                        <span>{v.fecha_hora_salida || "-"}</span>
+                        <span>{v.numero_de_cliente || "-"}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           )}
