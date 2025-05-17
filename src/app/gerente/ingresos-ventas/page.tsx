@@ -481,7 +481,7 @@ export default function Ingresos_ventas_page() {
           y = marginTop;
         }
         doc.setFontSize(10).text(
-          `${new Date(t.fecha_compra).toLocaleTimeString()} - ${t.tipo_ticket}: Q ${
+          `${t.tipo_ticket}: Q ${
             t.precio
           }.00`,
           14,
@@ -803,7 +803,7 @@ export default function Ingresos_ventas_page() {
                       arr.map((t, i) => (
                         <div key={i} className="ticket-item">
                           <span>
-                            {new Date(t.fecha_compra).toLocaleTimeString()}
+                            {/*{new Date(t.fecha_compra).toLocaleTimeString()}*/}
                           </span>
                           <span>Tipo: {t.tipo_ticket}</span>
                           <span>Q {t.precio}.00</span>
