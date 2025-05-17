@@ -363,6 +363,14 @@ export default function Ingresos_ventas_page() {
     return key;
   };
 
+    /* ---------- Etiquetas legibles para la gráfica ---------- */
+  const aggregatedChartPretty = Object.fromEntries(
+    Object.entries(aggregatedChart).map(([k, v]) => [
+      formatKey(k, chartGroupBy), // convierte la clave
+      v,
+    ])
+  );
+
   /* ---------- PDF Resumen Ventas ---------- */
   const exportSalesPDF = () => {
   const doc = new jsPDF();
@@ -837,7 +845,7 @@ export default function Ingresos_ventas_page() {
             )}
 
             <div className="chart">
-              <TicketChart data={aggregatedChart} />
+              <TicketChart data={aggregatedChartPretty} />
             </div>
           </section>
         </div>
