@@ -314,9 +314,9 @@ export default function ReporteVisitantes() {
           <div className="filtros-opciones">
             <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
               <option value="hoy">Hoy</option>
-              <option value="semana">Última semana</option>
-              <option value="mes">Último mes</option>
-              <option value="anio">Último año</option>
+              <option value="semana">Últimos 7 días</option>
+              <option value="mes">Últimos 30 días</option>
+              <option value="anio">Últimos 12 meses</option>
               <option value="personalizado">Personalizado</option>
             </select>
 
