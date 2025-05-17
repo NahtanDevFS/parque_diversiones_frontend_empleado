@@ -408,6 +408,7 @@
   .ticket-type-controls {
     flex-direction: column;
     align-items: stretch;
+    margin-top: 20px;
   }
   
   .ticket-item {
@@ -461,9 +462,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: 20px;
 }
 
 .ticket-type-filter {

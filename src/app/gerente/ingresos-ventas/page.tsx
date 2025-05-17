@@ -564,28 +564,6 @@ export default function Ingresos_ventas_page() {
           <section className="tickets-by-type">
             <h2>Resumen de Tickets Vendidos</h2>
 
-            <div className="ticket-type-controls">
-              <div className="ticket-type-filter">
-                <label>Tipo de ticket:</label>
-                <select
-                  value={ticketTypeFilter}
-                  onChange={(e) => {
-                    setTicketTypeFilter(e.target.value);
-                    filterTicketsByType(e.target.value, tickets);
-                  }}
-                >
-                  <option value="todos">Todos</option>
-                  <option value="juegos">Juegos</option>
-                  <option value="completo">Completo</option>
-                  <option value="entrada">Entrada</option>
-                </select>
-              </div>
-
-              <button className="export-btn" onClick={exportTicketsPDF}>
-                Exportar a PDF
-              </button>
-            </div>
-
             <div className="summary-filters">
               {(["today", "month", "year", "custom"] as SummaryFilter[]).map((f) => (
                 <button
@@ -633,6 +611,22 @@ export default function Ingresos_ventas_page() {
             )}
 
             <div className="filter-controls">
+              <div className="ticket-type-filter">
+                <label>Tipo de ticket:</label>
+                <select
+                  value={ticketTypeFilter}
+                  onChange={(e) => {
+                    setTicketTypeFilter(e.target.value);
+                    filterTicketsByType(e.target.value, tickets);
+                  }}
+                >
+                  <option value="todos">Todos</option>
+                  <option value="juegos">Juegos</option>
+                  <option value="completo">Completo</option>
+                  <option value="entrada">Entrada</option>
+                </select>
+              </div>
+
               <div className="group-by-control">
                 <label>Agrupar por:</label>
                 <select
@@ -682,6 +676,11 @@ export default function Ingresos_ventas_page() {
               ) : (
                 <p>No hay tickets para mostrar con los filtros actuales</p>
               )}
+            </div>
+            <div className="ticket-type-controls">
+              <button className="export-btn" onClick={exportTicketsPDF}>
+                Exportar a PDF
+              </button>
             </div>
           </section>
 
