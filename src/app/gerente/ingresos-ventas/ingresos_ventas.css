@@ -558,3 +558,16 @@
   cursor: pointer;
   font-weight: bold
 }
+
+/* Toggle "Mostrar solo total" */
+.total-only-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.total-only-toggle input {
+  accent-color: rgba(255, 115, 0, 1);
+}

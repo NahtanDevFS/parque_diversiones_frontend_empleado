@@ -25,6 +25,8 @@ export default function Ingresos_ventas_page() {
   /* ---------- ESTADOS GENERALES ---------- */
   const [selectedStatus, setSelectedStatus] = useState("En el almuerzo");
 
+    const [showOnlyTotal, setShowOnlyTotal] = useState(false); // TOTAL-MOD ➊
+
   /* === Filtros Resumen de Ventas (compacto) === */
   const [salesFilter, setSalesFilter] = useState<SummaryFilter>("today");
   const [customSalesStart, setCustomSalesStart] = useState("");
@@ -755,6 +757,17 @@ export default function Ingresos_ventas_page() {
                   <option value="asc">Menor a mayor</option>    {/* nuevo */}
                 </select>
               </div>
+              {/* TOTAL-MOD ➋  NUEVO CHECK */}
+              <div className="total-only-toggle">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showOnlyTotal}
+                    onChange={(e) => setShowOnlyTotal(e.target.checked)}
+                  />{" "}
+                  Mostrar solo total
+                </label>
+              </div>
             </div>
 
             <div className="tickets-scrollable">
@@ -762,13 +775,17 @@ export default function Ingresos_ventas_page() {
                 getGroupedAndSortedTickets().map(([date, arr]) => (
                   <div key={date} className="ticket-group">
                     <h4>{formatKey(date, ticketsGroupBy)}</h4>
-                    {arr.map((t, i) => (
-                      <div key={i} className="ticket-item">
-                        <span>{new Date(t.fecha_compra).toLocaleTimeString()}</span>
-                        <span>Tipo: {t.tipo_ticket}</span>
-                        <span>Q {t.precio}.00</span>
-                      </div>
-                    ))}
+                    {/* TOTAL-MOD ➌   DETALLE SOLO SI no showOnlyTotal */}
+                    {!showOnlyTotal &&
+                      arr.map((t, i) => (
+                        <div key={i} className="ticket-item">
+                          <span>
+                            {new Date(t.fecha_compra).toLocaleTimeString()}
+                          </span>
+                          <span>Tipo: {t.tipo_ticket}</span>
+                          <span>Q {t.precio}.00</span>
+                        </div>
+                      ))}
                     <div className="ticket-group-total">
                       Total: {arr.length} tickets – Q{" "}
                       {arr.reduce((s, tt) => s + tt.precio, 0)}
