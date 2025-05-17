@@ -233,56 +233,66 @@ export default function ReporteVisitantes() {
 
   /* ---------- PDF export ---------- */
   const exportarPDF = () => {
-    const doc = new jsPDF("p", "mm", "a4");
-    const pw = doc.internal.pageSize.getWidth();
-    const margin = 15;
+  const doc = new jsPDF("p", "mm", "a4");
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const margin = 15;
+  const marginBottom = 20;
 
-    doc.setFontSize(16).text("Listado de Visitantes", margin, 20);
-    doc.setFontSize(11).text(`Generado: ${new Date().toLocaleString()}`, margin, 27);
-    doc.setFontSize(11).text(`Total: ${flatSorted.length}`, margin, 34);
+  /* ---------- Encabezado ---------- */
+  doc.setFontSize(16).text("Listado de Visitantes", margin, 20);
+  doc.setFontSize(11).text(`Generado: ${new Date().toLocaleString()}`, margin, 27);
+  doc.setFontSize(11).text(`Total general: ${flatSorted.length}`, margin, 34);
 
-    let y = 42;
+  if (!showTable) {                                         // PDF-MOD ➊
+    doc.setFontSize(11).text("(Modo solo totales)", margin, 40);
+  }
 
-    const lineOrBreak = (inc: number) => {
-      if (y + inc > 285) {
-        doc.addPage();
-        y = 20;
-      }
-      y += inc;
-    };
+  /* ---------- Punto inicial ---------- */
+  let y = showTable ? 42 : 46;                              // PDF-MOD ➋
 
-    groupEntries.forEach(([key, arr]) => {
-      doc.setFontSize(12).text(prettyKey(key, visitGroupBy), margin, y);
-      doc.setFontSize(12).text(`—  ${arr.length} visitas`, pw - margin - 40, y);
-      lineOrBreak(6);
-
-      if (showTable) {
-        doc.setFontSize(10);
-        doc.text("ID", margin, y);
-        doc.text("Ingreso", margin + 15, y);
-        doc.text("Salida", margin + 75, y);
-        doc.text("Cliente", pw - margin - 20, y, { align: "right" });
-        lineOrBreak(5);
-
-        arr.forEach((v) => {
-          const ingreso = new Date(v.fecha_hora_visita).toLocaleString();
-          const salida = v.fecha_hora_salida
-            ? new Date(v.fecha_hora_salida).toLocaleString()
-            : "-";
-          doc.text(String(v.id_acceso), margin, y);
-          doc.text(ingreso, margin + 15, y);
-          doc.text(salida, margin + 75, y);
-          doc.text(String(v.numero_de_cliente || "-"), pw - margin - 20, y, {
-            align: "right",
-          });
-          lineOrBreak(5);
-        });
-        lineOrBreak(3);
-      }
-    });
-
-    doc.save("Listado_visitantes.pdf");
+  const salto = (inc: number) => {
+    if (y + inc > ph - marginBottom) {
+      doc.addPage();
+      y = 20;
+    }
+    y += inc;
   };
+
+  /* ---------- Recorrido de grupos ---------- */
+  groupEntries.forEach(([key, arr]) => {
+    doc.setFontSize(12).text(prettyKey(key, visitGroupBy), margin, y);
+    doc.setFontSize(12).text(`—  ${arr.length} visitas`, pw - margin, y, { align: "right" });
+    salto(6);
+
+    if (showTable) {                                        // PDF-MOD ➌   Detalles opcionales
+      /* Encabezados de tabla */
+      doc.setFontSize(10);
+      doc.text("ID", margin, y);
+      doc.text("Ingreso", margin + 18, y);
+      doc.text("Salida", margin + 80, y);
+      doc.text("Cliente", pw - margin, y, { align: "right" });
+      salto(5);
+
+      /* Filas */
+      arr.forEach((v) => {
+        const ingreso = new Date(v.fecha_hora_visita).toLocaleString();
+        const salida = v.fecha_hora_salida
+          ? new Date(v.fecha_hora_salida).toLocaleString()
+          : "-";
+        doc.text(String(v.id_acceso), margin, y);
+        doc.text(ingreso, margin + 18, y);
+        doc.text(salida, margin + 80, y);
+        doc.text(String(v.numero_de_cliente || "-"), pw - margin, y, { align: "right" });
+        salto(5);
+      });
+      salto(3); // espacio extra tras la tabla
+    }
+  });
+
+  /* ---------- Guardar ---------- */
+  doc.save("Listado_visitantes.pdf");
+};
 
   /* ---------- UI ---------- */
   return (

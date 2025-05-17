@@ -428,6 +428,8 @@ export default function Ingresos_ventas_page() {
   const ph = doc.internal.pageSize.getHeight();
   const marginTop = 20;
   const marginBottom = 20;
+
+  /* Marca de agua */
   const watermark = () =>
     doc.addImage(
       "/marca_agua_logo_circular.png",
@@ -439,59 +441,80 @@ export default function Ingresos_ventas_page() {
       "",
       "FAST"
     );
-
   watermark();
 
+  /* Título dinámico */
   const title =
     ticketTypeFilter === "todos"
       ? "Resumen de tickets (todos los tipos)"
       : `Resumen de tickets tipo ${ticketTypeFilter}`;
 
-  doc.setFontSize(18);
-  doc.text(title, 10, marginTop);
-  let y = marginTop + 10;
+  doc.setFontSize(18).text(title, 10, marginTop);
 
-  getGroupedAndSortedTickets().forEach(([date, arr]) => {
+  /* Indicador de modo compacto */
+  if (showOnlyTotal) {
+    doc.setFontSize(11).text("(Modo solo total)", 10, marginTop + 8);
+  }
+
+  /* Punto de partida del cursor Y */
+  let y = marginTop + (showOnlyTotal ? 14 : 10);
+
+  /* Recorremos los grupos (día / semana / mes / año) */
+  getGroupedAndSortedTickets().forEach(([dateKey, ticketsArr]) => {
+    /* Salto de página si es necesario */
     if (y > ph - marginBottom) {
       doc.addPage();
       watermark();
       y = marginTop;
     }
 
-    doc.setFontSize(12);
-    doc.text(formatKey(date, ticketsGroupBy), 10, y);
+    /* Encabezado del grupo */
+    doc.setFontSize(12).text(formatKey(dateKey, ticketsGroupBy), 10, y);
     y += 7;
 
-    arr.forEach((t) => {
-      if (y > ph - marginBottom) {
-        doc.addPage();
-        watermark();
-        y = marginTop;
-      }
-      doc.setFontSize(10);
-      doc.text(
-        `${new Date(t.fecha_compra).toLocaleTimeString()} - ${t.tipo_ticket}: Q ${t.precio}.00`,
-        14,
-        y
-      );
-      y += 6;
-    });
+    /* Detalle sólo si showOnlyTotal está desactivado */
+    if (!showOnlyTotal) {
+      ticketsArr.forEach((t) => {
+        if (y > ph - marginBottom) {
+          doc.addPage();
+          watermark();
+          y = marginTop;
+        }
+        doc.setFontSize(10).text(
+          `${new Date(t.fecha_compra).toLocaleTimeString()} - ${t.tipo_ticket}: Q ${
+            t.precio
+          }.00`,
+          14,
+          y
+        );
+        y += 6;
+      });
+    } else {
+      /* pequeño espacio antes del total cuando ocultamos detalle */
+      y += 2;
+    }
 
-    const total = arr.reduce((s, t) => s + t.precio, 0);
+    /* Línea total del grupo */
+    const groupTotal = ticketsArr.reduce((s, t) => s + t.precio, 0);
     if (y > ph - marginBottom) {
       doc.addPage();
       watermark();
       y = marginTop;
     }
-    doc.setFontSize(11);
-    doc.text(`Total: ${arr.length} tickets - Q ${total}.00`, 10, y);
+    doc.setFontSize(11).text(
+      `Total: ${ticketsArr.length} tickets – Q ${groupTotal}.00`,
+      10,
+      y
+    );
     y += 10;
   });
 
+  /* Guardar archivo */
   doc.save(
     `Tickets_${ticketTypeFilter}_${new Date().toISOString().slice(0, 10)}.pdf`
   );
 };
+
   /* ---------- EFFECTS ---------- */
   useEffect(() => {
     fetchTickets(salesFilter, customSalesStart, customSalesEnd, setSalesTickets);
