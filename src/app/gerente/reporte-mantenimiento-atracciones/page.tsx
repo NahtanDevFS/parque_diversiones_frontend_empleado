@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import './reporte_mantenimiento_atracciones.css';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
+import { utils, writeFile } from 'xlsx';
 
 /* ------------------------------ Tipos ------------------------------------ */
 interface Mantenimiento {
@@ -164,54 +165,54 @@ export default function ReporteMantenimientoAtraccion() {
 
   const exportarPDF = (atr: AtraccionCard) => {
   const doc = new jsPDF();
-  const { filtro = 'hoy', fechaInicio = '', fechaFin = '' } = filtros[atr.id] || {};
+  const { filtro = "hoy", fechaInicio = "", fechaFin = "" } = filtros[atr.id] || {};
   const { desde, hasta } = calcularRango(filtro, fechaInicio, fechaFin);
   const lista = atr.historial.filter((m) => m.fecha >= desde && m.fecha <= hasta);
 
-  // Encabezado
+  /* ─── Encabezado ─── */
   doc.setFontSize(16).text(`Historial de Mantenimiento - ${atr.nombre}`, 10, 15);
   doc.setFontSize(12)
     .text(`Fecha de generación: ${new Date().toLocaleString()}`, 10, 25)
     .text(`Rango del reporte: ${desde} a ${hasta}`, 10, 32)
     .text(`Cantidad de mantenimientos: ${lista.length}`, 10, 39);
 
-  // Posición de inicio de la tabla
+  /* ─── Cabecera de tabla ─── */
   let y = 47;
-  // Cabecera en bold
-  doc.setFont('Helvetica', 'bold');
-  doc.text('Fecha', 10, y);
-  doc.text('Tipo', 50, y);
-  doc.text('Descripción', 90, y);
-  doc.text('Costo', 170, y);
-
-  // Volvemos a normal
-  doc.setFont('Helvetica', 'normal');
+  doc.setFont("Helvetica", "bold");
+  doc.text("Fecha", 10, y);
+  doc.text("Tipo", 50, y);
+  doc.text("Descripción", 90, y);
+  doc.text("Costo", 170, y);
+  doc.setFont("Helvetica", "normal");
   y += 8;
 
   if (!lista.length) {
-    doc.text('No hay registros en este periodo.', 10, y);
+    doc.text("No hay registros en este periodo.", 10, y);
   } else {
-    const lineHeight = 7;      // interlineado
-    const extraSpacing = 4;    // espacio extra tras cada fila
-    const descMaxWidth = 60;   // ancho máximo para la descripción
+    const lineHeight   = 7;
+    const extraSpacing = 4;
+    const fechaMaxW    = 35;  // ancho para la columna Fecha
+    const descMaxW     = 60;  // ancho para Descripción
 
     lista.forEach((m) => {
-      // 1) Partimos la descripción en un array de líneas
-      const lines = doc.splitTextToSize(m.descripcion, descMaxWidth);
+      /* 1. Partimos fecha y descripción */
+      const fechaLines = doc.splitTextToSize(m.fecha, fechaMaxW);
+      const descLines  = doc.splitTextToSize(m.descripcion, descMaxW);
 
-      // 2) Calculamos la altura total de esta fila
-      const rowHeight = lines.length * lineHeight;
+      /* 2. Altura de fila = el mayor nº de líneas */
+      const rowLines  = Math.max(fechaLines.length, descLines.length);
+      const rowHeight = rowLines * lineHeight;
 
-      // 3) Dibujamos cada columna, todas en Y = y
-      doc.text(m.fecha, 10, y);
-      doc.text(m.tipo, 50, y);
-      doc.text(lines, 90, y);                     // si recibe array, imprime línea a línea
+      /* 3. Imprimimos columnas */
+      doc.text(fechaLines, 10, y);            // acepta array
+      doc.text(m.tipo,        50, y);         // tipo suele caber en una línea
+      doc.text(descLines,     90, y);
       doc.text(`Q${m.costo_reparacion}`, 170, y);
 
-      // 4) Avanzamos Y para la siguiente fila
+      /* 4. Avanzamos */
       y += rowHeight + extraSpacing;
 
-      // 5) Salto de página si nos acercamos al final
+      /* 5. Salto de página */
       if (y > 270) {
         doc.addPage();
         y = 20;
@@ -222,6 +223,32 @@ export default function ReporteMantenimientoAtraccion() {
   doc.save(`historial_${atr.id}.pdf`);
 };
 
+  /* --------------------------- EXCEL export ------------------------------ */
+  const exportarExcel = (atr: AtraccionCard) => {
+    const { filtro = 'hoy', fechaInicio = '', fechaFin = '' } = filtros[atr.id] || {};
+    const { desde, hasta } = calcularRango(filtro, fechaInicio, fechaFin);
+    const lista = atr.historial.filter((m) => m.fecha >= desde && m.fecha <= hasta);
+
+    /* 1) Cabecera y rango aplicado */
+    const rows: any[][] = [
+      [`Historial de Mantenimiento - ${atr.nombre}`],
+      ['Rango:', `${desde} → ${hasta}`],
+      ['Total de mantenimientos', lista.length],
+      [],
+      ['Fecha', 'Tipo', 'Descripción', 'Costo (Q)'],
+    ];
+
+    /* 2) Detalle */
+    lista.forEach((m) => rows.push([m.fecha, m.tipo, m.descripcion, m.costo_reparacion]));
+
+    /* 3) Generar libro y hoja */
+    const wb = utils.book_new();
+    const ws = utils.aoa_to_sheet(rows);
+    utils.book_append_sheet(wb, ws, atr.nombre.slice(0, 31));
+
+    /* 4) Descargar */
+    writeFile(wb, `historial_${atr.id}.xlsx`);
+  };
 
 
   const handleFiltro = (id: string, campo: keyof FiltroPorFecha, valor: string) => {
@@ -230,6 +257,8 @@ export default function ReporteMantenimientoAtraccion() {
       [id]: { ...prev[id], [campo]: valor },
     }));
   };
+
+  
 
   /* ----------------------------------------------------------------------- */
   return (
@@ -293,8 +322,9 @@ export default function ReporteMantenimientoAtraccion() {
                 )}
 
                 <button onClick={() => exportarPDF(atr)} className='export-btn'>
-                  Exportar PDF
+                  Exportar a PDF
                 </button>
+                <button onClick={() => exportarExcel(atr)} className='export-btn-excel'>Exportar a Excel</button>
 
                 {/* ---------- Conteo de mantenimientos ---------- */}
                 <p className='conteo-mantenimientos'>
