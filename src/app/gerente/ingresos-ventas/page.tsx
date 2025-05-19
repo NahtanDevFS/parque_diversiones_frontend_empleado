@@ -6,6 +6,7 @@ import LayoutWithSidebar from "@/components/LayoutWithSidebar";
 import TicketChart from "@/components/TicketChart";
 import { supabase } from "./actions";
 import { jsPDF } from "jspdf";
+import { utils, writeFile } from 'xlsx';
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -421,6 +422,32 @@ export default function Ingresos_ventas_page() {
   doc.save(`Ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
 };
 
+/* ---------- EXCEL Resumen Ventas ---------- */
+const exportSalesExcel = () => {
+  /* 1. Creamos un libro y una hoja */
+  const wb = utils.book_new();
+  const rows: any[][] = [
+    ['Periodo', 'Total (Q)']
+  ];
+
+  /* 2. Rellenamos con los mismos datos que el PDF */
+  Object.entries(aggregatedSalesSummary)
+    .sort(getSummaryComparator(salesSortOrder, salesGroupBy))
+    .forEach(([key, value]) =>
+      rows.push([formatKey(key, salesGroupBy), value])
+    );
+
+  /* 3. Convertimos a hoja y la añadimos al libro */
+  const ws = utils.aoa_to_sheet(rows);
+  utils.book_append_sheet(wb, ws, 'Resumen ventas');
+
+  /* 4. Descargamos */
+  writeFile(
+    wb,
+    `Ventas_${new Date().toISOString().slice(0, 10)}.xlsx`
+  );
+};
+
   /* ---------- PDF Tickets Vendidos ---------- */
   const exportTicketsPDF = () => {
   const doc = new jsPDF();
@@ -512,6 +539,52 @@ export default function Ingresos_ventas_page() {
   /* Guardar archivo */
   doc.save(
     `Tickets_${ticketTypeFilter}_${new Date().toISOString().slice(0, 10)}.pdf`
+  );
+};
+
+/* ---------- EXCEL Tickets Vendidos ---------- */
+/* ---------- EXCEL Tickets Vendidos ---------- */
+const exportTicketsExcel = () => {
+  const wb   = utils.book_new();
+  const rows: any[][] = [];
+
+  if (showOnlyTotal) {
+    /* ➊ Solo totales → tabla compacta */
+    rows.push(["Periodo", "Tickets", "Total (Q)"]);
+
+    getGroupedAndSortedTickets().forEach(([key, arr]) => {
+      const periodo = formatKey(key, ticketsGroupBy);
+      const totalQ  = arr.reduce((s, t) => s + t.precio, 0);
+      rows.push([periodo, arr.length, totalQ]);
+    });
+
+  } else {
+    /* ➋ Detalle completo */
+    rows.push(["Periodo", "Tipo", "Precio (Q)"]);
+
+    getGroupedAndSortedTickets().forEach(([key, arr]) => {
+      const periodo = formatKey(key, ticketsGroupBy);
+
+      arr.forEach((t, i) => {
+        rows.push([
+          i === 0 ? periodo : "",        // sólo en la 1ª línea del bloque
+          t.tipo_ticket,
+          t.precio
+        ]);
+      });
+
+      /* línea subtotal */
+      const subtotal = arr.reduce((s, t) => s + t.precio, 0);
+      rows.push(["", `TOTAL ${periodo}`, subtotal]);
+      rows.push([]);                      // línea en blanco separadora
+    });
+  }
+
+  const ws = utils.aoa_to_sheet(rows);
+  utils.book_append_sheet(wb, ws, "Tickets");
+  writeFile(
+    wb,
+    `Tickets_${ticketTypeFilter}_${new Date().toISOString().slice(0, 10)}.xlsx`
   );
 };
 
@@ -668,6 +741,9 @@ export default function Ingresos_ventas_page() {
               <button className="export-btn" onClick={exportSalesPDF}>
                 Exportar a PDF
               </button>
+              <button className="export-btn-excel" onClick={exportSalesExcel}>
+                Exportar a Excel
+              </button>
             </div>
           </section>
 
@@ -823,6 +899,9 @@ export default function Ingresos_ventas_page() {
             <div className="ticket-type-controls">
               <button className="export-btn" onClick={exportTicketsPDF}>
                 Exportar a PDF
+              </button>
+              <button className="export-btn-excel" onClick={exportTicketsExcel}>
+                Exportar a Excel
               </button>
             </div>
           </section>

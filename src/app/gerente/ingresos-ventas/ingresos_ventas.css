@@ -176,7 +176,25 @@
   display: block;
   width: 100%;
   padding: 10px;
-  background-color: rgb(255, 111, 0);
+  background-color: rgb(255, 47, 0);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.export-btn:hover {
+  background-color: rgb(186, 34, 0);
+}
+
+.export-btn-excel {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: rgb(0, 181, 0);
   color: white;
   border: none;
   border-radius: 4px;
@@ -185,8 +203,8 @@
   transition: background-color 0.2s ease;
 }
 
-.export-btn:hover {
-  background-color: rgb(255, 94, 0);
+.export-btn-excel:hover {
+  background-color: rgb(0, 143, 0);
 }
 
 .custom-date-range {
@@ -485,7 +503,6 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
   margin-top: 20px;
 }
 
