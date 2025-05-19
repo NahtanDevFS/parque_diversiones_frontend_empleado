@@ -163,42 +163,66 @@ export default function ReporteMantenimientoAtraccion() {
   };
 
   const exportarPDF = (atr: AtraccionCard) => {
-    const doc = new jsPDF();
-    const { filtro = 'hoy', fechaInicio = '', fechaFin = '' } = filtros[atr.id] || {};
-    const { desde, hasta } = calcularRango(filtro, fechaInicio, fechaFin);
-    const lista = atr.historial.filter((m) => m.fecha >= desde && m.fecha <= hasta);
+  const doc = new jsPDF();
+  const { filtro = 'hoy', fechaInicio = '', fechaFin = '' } = filtros[atr.id] || {};
+  const { desde, hasta } = calcularRango(filtro, fechaInicio, fechaFin);
+  const lista = atr.historial.filter((m) => m.fecha >= desde && m.fecha <= hasta);
 
-    doc.setFontSize(16).text(`Historial de Mantenimiento - ${atr.nombre}`, 10, 15);
-    doc.setFontSize(12)
-      .text(`Fecha de generación: ${new Date().toLocaleString()}`, 10, 25)
-      .text(`Rango del reporte: ${desde} a ${hasta}`, 10, 32)
-      .text(`Cantidad de mantenimientos: ${lista.length}`, 10, 39); // NUEVO
+  // Encabezado
+  doc.setFontSize(16).text(`Historial de Mantenimiento - ${atr.nombre}`, 10, 15);
+  doc.setFontSize(12)
+    .text(`Fecha de generación: ${new Date().toLocaleString()}`, 10, 25)
+    .text(`Rango del reporte: ${desde} a ${hasta}`, 10, 32)
+    .text(`Cantidad de mantenimientos: ${lista.length}`, 10, 39);
 
-    let y = 47;
-    doc.text('Fecha', 10, y);
-    doc.text('Tipo', 50, y);
-    doc.text('Descripción', 90, y);
-    doc.text('Costo', 170, y);
-    y += 10;
+  // Posición de inicio de la tabla
+  let y = 47;
+  // Cabecera en bold
+  doc.setFont('Helvetica', 'bold');
+  doc.text('Fecha', 10, y);
+  doc.text('Tipo', 50, y);
+  doc.text('Descripción', 90, y);
+  doc.text('Costo', 170, y);
 
-    if (!lista.length) {
-      doc.text('No hay registros en este periodo.', 10, y);
-    } else {
-      lista.forEach((m) => {
-        doc.text(m.fecha, 10, y);
-        doc.text(m.tipo, 50, y);
-        doc.text(m.descripcion.slice(0, 70), 90, y);
-        doc.text(`Q${m.costo_reparacion}`, 170, y);
-        y += 10;
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-      });
-    }
+  // Volvemos a normal
+  doc.setFont('Helvetica', 'normal');
+  y += 8;
 
-    doc.save(`historial_${atr.id}.pdf`);
-  };
+  if (!lista.length) {
+    doc.text('No hay registros en este periodo.', 10, y);
+  } else {
+    const lineHeight = 7;      // interlineado
+    const extraSpacing = 4;    // espacio extra tras cada fila
+    const descMaxWidth = 60;   // ancho máximo para la descripción
+
+    lista.forEach((m) => {
+      // 1) Partimos la descripción en un array de líneas
+      const lines = doc.splitTextToSize(m.descripcion, descMaxWidth);
+
+      // 2) Calculamos la altura total de esta fila
+      const rowHeight = lines.length * lineHeight;
+
+      // 3) Dibujamos cada columna, todas en Y = y
+      doc.text(m.fecha, 10, y);
+      doc.text(m.tipo, 50, y);
+      doc.text(lines, 90, y);                     // si recibe array, imprime línea a línea
+      doc.text(`Q${m.costo_reparacion}`, 170, y);
+
+      // 4) Avanzamos Y para la siguiente fila
+      y += rowHeight + extraSpacing;
+
+      // 5) Salto de página si nos acercamos al final
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+    });
+  }
+
+  doc.save(`historial_${atr.id}.pdf`);
+};
+
+
 
   const handleFiltro = (id: string, campo: keyof FiltroPorFecha, valor: string) => {
     setFiltros((prev) => ({
