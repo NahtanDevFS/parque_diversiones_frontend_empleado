@@ -123,6 +123,20 @@
   background-color: rgba(255, 94, 0, 1);
 }
 
+.export-btn-excel {
+  background-color: rgb(0, 181, 0);
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.export-btn-excel:hover {
+  background-color: rgb(0, 143, 0);
+}
+
 /* ========== LISTADO / TABLA ========== */
 .summary {
   width: 100%;
@@ -239,6 +253,7 @@
   gap: 4px;
   font-weight: 600;
   cursor: pointer;
+  font-size: 22px;
 }
 .toggle-table input {
   accent-color: rgba(255, 115, 0, 1);

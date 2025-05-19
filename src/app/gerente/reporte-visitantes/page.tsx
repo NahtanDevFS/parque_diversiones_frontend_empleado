@@ -7,6 +7,7 @@ import jsPDF from "jspdf";
 import "./reporte_visitantes.css";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { utils, writeFile } from "xlsx";
 
 type GroupBy = "day" | "week" | "month" | "year";
 type SortOrder = "newest" | "oldest" | "desc" | "asc";
@@ -294,6 +295,54 @@ export default function ReporteVisitantes() {
   doc.save("Listado_visitantes.pdf");
 };
 
+/* ---------- Excel export ---------- */
+const exportarExcel = () => {
+  /* 1. Preparamos filas usando el mismo agrupamiento que el PDF */
+  const rows: any[][] = [];
+
+  // Encabezado general
+  rows.push(["Listado de Visitantes"]);
+  rows.push(["Generado:", new Date().toLocaleString()]);
+  rows.push(["Total general:", flatSorted.length]);
+  rows.push([]);                                  // línea en blanco
+
+  groupEntries.forEach(([key, arr]) => {
+    /* Título del grupo */
+    rows.push([prettyKey(key, visitGroupBy), `${arr.length} visitas`]);
+
+    if (showTable) {
+      /* Encabezados de tabla */
+      rows.push(["ID", "Ingreso", "Salida", "Cliente"]);
+
+      /* Detalle */
+      arr.forEach((v) => {
+        const ingreso = new Date(v.fecha_hora_visita).toLocaleString();
+        const salida =
+          v.fecha_hora_salida
+            ? new Date(v.fecha_hora_salida).toLocaleString()
+            : "-";
+        rows.push([
+          v.id_acceso,
+          ingreso,
+          salida,
+          v.numero_de_cliente || "-",
+        ]);
+      });
+
+      /* Línea separadora */
+      rows.push([]);
+    }
+  });
+
+  /* 2. SheetJS → libro + hoja */
+  const wb = utils.book_new();
+  const ws = utils.aoa_to_sheet(rows);
+  utils.book_append_sheet(wb, ws, "Visitantes");
+
+  /* 3. Descargar */
+  writeFile(wb, "Listado_visitantes.xlsx");
+};
+
   /* ---------- UI ---------- */
   return (
     <LayoutWithSidebar>
@@ -363,6 +412,9 @@ export default function ReporteVisitantes() {
             </label>
 
             <button className="export-btn" onClick={exportarPDF}>Exportar a PDF</button>
+            <button className="export-btn-excel" onClick={exportarExcel}>
+              Exportar a Excel
+            </button>
           </div>
         </div>
 
