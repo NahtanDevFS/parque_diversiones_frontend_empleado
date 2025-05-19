@@ -7,6 +7,7 @@ import { supabase } from './actions';
 import jsPDF from 'jspdf';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
+import { utils, writeFile } from 'xlsx';
 
 /* ---------------------------- Tipos e interfaces --------------------------- */
 interface Atraccion {
@@ -337,6 +338,54 @@ export default function ReporteAtraccion() {
     doc.save(`reporte_atracciones_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  /* --------------------------- EXCEL (NEW) ------------------------------- */
+  const exportarExcelIndividual = async (a: Atraccion) => {
+    const { desde, hasta } = calcularRango(a.id_atraccion);
+    const { data } = await supabase
+      .from('uso_atraccion')
+      .select('fecha_ciclo_atraccion, hora_ciclo_atraccion')
+      .eq('id_atraccion', a.id_atraccion)
+      .gte('fecha_ciclo_atraccion', desde)
+      .lte('fecha_ciclo_atraccion', hasta);
+
+    const count = data?.length || 0;
+    const rows: any[][] = [
+      ['Reporte de Usos - ' + a.nombre],
+      ['Rango:', `${desde} → ${hasta}`],
+      ['Cantidad de usos', count],
+      [],
+      ['Fecha', 'Hora'],
+      ...
+        (data?.map(u => [u.fecha_ciclo_atraccion, u.hora_ciclo_atraccion]) || [])
+    ];
+
+    const wb = utils.book_new();
+    const ws = utils.aoa_to_sheet(rows);
+    utils.book_append_sheet(wb, ws, a.nombre.slice(0, 31));
+    writeFile(wb, `reporte_${a.nombre.replaceAll(' ', '_')}.xlsx`);
+  };
+
+
+  const exportarExcelGeneral = () => {
+    const { desde, hasta } = calcularRangoGeneral();
+
+    /* Encabezado */
+    const rows: any[][] = [
+      ['Rango:', `${desde} → ${hasta}`],
+      [],
+      ['Nombre atracción', 'Usos en el rango']
+    ];
+
+    atracciones.forEach((a) =>
+      rows.push([a.nombre, usosGenerales[a.id_atraccion] ?? 0])
+    );
+
+    const wb = utils.book_new();
+    const ws = utils.aoa_to_sheet(rows);
+    utils.book_append_sheet(wb, ws, 'Reporte Atracciones');
+    writeFile(wb, `reporte_atracciones_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   /* -------------------------------- UI ------------------------------------ */
   return (
     <LayoutWithSidebar>
@@ -376,6 +425,11 @@ export default function ReporteAtraccion() {
 
           <button className='export-btn' onClick={exportarPDFGeneral}>
             Exportar PDF
+          </button>
+
+          {/* === NEW » botón Excel general === */}
+          <button className='export-btn-excel' onClick={exportarExcelGeneral}>
+            Exportar Excel
           </button>
 
           {/* ---------- Totales por atracción en el rango general ---------- */}
@@ -436,6 +490,10 @@ export default function ReporteAtraccion() {
 
               <button className='export-btn' onClick={() => exportarPDFIndividual(a)}>
                 Reporte en PDF
+              </button>
+              {/* === NEW » botón Excel individual === */}
+              <button className='export-btn-excel' onClick={() => exportarExcelIndividual(a)}>
+                Reporte en Excel
               </button>
             </div>
           ))}
