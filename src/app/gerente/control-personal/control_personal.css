@@ -99,7 +99,8 @@
   }
   
   .employee_control_button {
-    background-color: #ffba08;
+    background-color: rgb(255, 47, 0);
+    color: white;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 4px;
@@ -108,7 +109,25 @@
   }
   
   .employee_control_button:hover {
-    background-color: #e0a800;
+    background-color: rgb(186, 34, 0);
+  }
+
+  .employee_control_button_excel {
+    background-color: rgb(0, 181, 0);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .employee_control_button_excel:hover {
+    background-color: rgb(0, 143, 0);
+  }
+
+  .employee_control_button_combobox {
+    font-size: 16px;
   }
   
   .search_filters_container {
@@ -228,6 +247,11 @@
     }
   
     .employee_control_button {
+      padding: 0.4rem 0.8rem;
+      font-size: 14px;
+    }
+
+    .employee_control_button_excel {
       padding: 0.4rem 0.8rem;
       font-size: 14px;
     }

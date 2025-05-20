@@ -1,16 +1,18 @@
 "use client";
 
-import LayoutWithSidebar from '@/components/LayoutWithSidebar';
-import React, { useEffect, useState } from 'react';
-import { supabase } from './actions';
-import './control_personal.css';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import jsPDF from 'jspdf';
-import { useRouter } from 'next/navigation';
+import LayoutWithSidebar from "@/components/LayoutWithSidebar";
+import React, { useEffect, useState } from "react";
+import { supabase } from "./actions";
+import "./control_personal.css";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import jsPDF from "jspdf";
+import { useRouter } from "next/navigation";
+import { utils, writeFile } from "xlsx";
 
 const MySwal = withReactContent(Swal);
 
+/* ---------- Tipos ---------- */
 type Employee = {
   id_empleado: number;
   nombre: string;
@@ -20,285 +22,266 @@ type Employee = {
   estado_actividad_empleado: string;
   estado_empleado: string;
   estado_cuenta: number;
-  puesto: {
-    nombre: string;
-  };
+  puesto: { nombre: string };
   fecha_contratacion: string;
   email: string;
 };
 
+type RangeType = "hoy" | "7dias" | "30dias" | "personalizado";
+
+interface EmpRange {
+  type: RangeType;
+  start?: string; // YYYY-MM-DD
+  end?: string;   // YYYY-MM-DD
+}
+
+/* ---------- Componente ---------- */
 export default function ControlPersonalPage() {
   const router = useRouter();
-  
+
+  /* --- Estados globales --- */
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterPuesto, setFilterPuesto] = useState('');
-  const [filterEstadoEmpleado, setFilterEstadoEmpleado] = useState('');
-  const [filterEstadoCuenta, setFilterEstadoCuenta] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterPuesto, setFilterPuesto] = useState("");
+  const [filterEstadoEmpleado, setFilterEstadoEmpleado] = useState("");
+  const [filterEstadoCuenta, setFilterEstadoCuenta] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("En el almuerzo");
 
-  // Estado para el selector de actividad manual
-    const [selectedStatus, setSelectedStatus] = useState<string>('En el almuerzo');
+  /* Rango individual por empleado */
+  const [rangeByEmp, setRangeByEmp] = useState<Record<number, EmpRange>>({});
 
-  // Validación del token para proteger la ruta
+  /* ---------- Protección de ruta ---------- */
   useEffect(() => {
-    const storedSession = localStorage.getItem('employeeSession');
-    if (!storedSession) {
-      // Si no hay token, redireccionar a la página de inicio
-      router.push('/');
-      return;
-    }
-    try {
-      const session = JSON.parse(storedSession);
-      const { id_puesto, id_empleado } = session;
-      
-            // Función async para update
-            (async () => {
-              if (id_puesto !== 6) {
-                const { data, error } = await supabase
-                  .from('empleado')
-                  .update({ estado_actividad_empleado: 'En el módulo de control de personal' })
-                  .eq('id_empleado', id_empleado);
-                if (error) console.error('Error al actualizar estado automático:', error);
-                else console.log('Estado automático actualizado:', data);
-              }
-            })();
+    const stored = localStorage.getItem("employeeSession");
+    if (!stored) return void router.push("/");
 
-      // Solo el gerente (id_puesto = 3) y administrador (id_puesto = 6) tiene acceso a esta página
-      if (session.id_puesto !== 3 && session.id_puesto !== 6) {
-        MySwal.fire({
-            title: 'Acceso denegado',
-            text: 'No tienes permiso para acceder a ese módulo',
-            icon: 'error',
-            confirmButtonText: 'Ok'
-          }).then(() => {
-            router.push('/');
-          });
+    try {
+      const { id_puesto, id_empleado } = JSON.parse(stored);
+
+      (async () => {
+        if (id_puesto !== 6) {
+          await supabase
+            .from("empleado")
+            .update({
+              estado_actividad_empleado: "En el módulo de control de personal",
+            })
+            .eq("id_empleado", id_empleado);
+        }
+      })();
+
+      if (id_puesto !== 3 && id_puesto !== 6) {
+        MySwal.fire(
+          "Acceso denegado",
+          "No tienes permiso para acceder a este módulo",
+          "error"
+        ).then(() => router.push("/"));
       }
-    } catch (error) {
-      console.error("Error al parsear el token", error);
-      router.push('/');
+    } catch {
+      router.push("/");
     }
   }, [router]);
 
-    // Handler para actualizar estado desde el combobox
-    const handleStatusUpdate = async () => {
-      const stored = localStorage.getItem('employeeSession');
-      if (!stored) return;
-      const session = JSON.parse(stored);
-      await supabase
-        .from('empleado')
-        .update({ estado_actividad_empleado: selectedStatus })
-        .eq('id_empleado', session.id_empleado);
-      MySwal.fire('Éxito', 'Estado actualizado a ' + selectedStatus, 'success');
-    };
+  /* ---------- Cambiar estado manual ---------- */
+  const handleStatusUpdate = async () => {
+    const stored = localStorage.getItem("employeeSession");
+    if (!stored) return;
+    const { id_empleado } = JSON.parse(stored);
+    await supabase
+      .from("empleado")
+      .update({ estado_actividad_empleado: selectedStatus })
+      .eq("id_empleado", id_empleado);
+    MySwal.fire("Éxito", "Estado actualizado", "success");
+  };
 
+  /* ---------- Cargar empleados ---------- */
   useEffect(() => {
-    async function fetchEmployees() {
-      const { data, error } = await supabase
-        .from('empleado')
+    (async () => {
+      const { data } = await supabase
+        .from("empleado")
         .select(
-          'id_empleado, nombre, apellido, empleado_foto, telefono, estado_actividad_empleado, estado_empleado, estado_cuenta, puesto(nombre), fecha_contratacion, email'
+          "id_empleado, nombre, apellido, empleado_foto, telefono, estado_actividad_empleado, estado_empleado, estado_cuenta, puesto(nombre), fecha_contratacion, email"
         );
-      if (error) {
-        console.error("Error al obtener empleados:", error);
-      } else if (data) {
-        // Convertimos el campo 'puesto' que se devuelve como arreglo a objeto simple
-        const formattedEmployees: Employee[] = data.map((emp: any) => ({
-          ...emp,
-          puesto: emp.puesto && Array.isArray(emp.puesto) ? emp.puesto[0] : emp.puesto,
+      if (data) {
+        const list: Employee[] = data.map((e: any) => ({
+          ...e,
+          puesto: Array.isArray(e.puesto) ? e.puesto[0] : e.puesto,
         }));
-        setEmployees(formattedEmployees);
+        setEmployees(list);
+        /* inicializar rangos a 'hoy' */
+        const init: Record<number, EmpRange> = {};
+        list.forEach((e) => (init[e.id_empleado] = { type: "hoy" }));
+        setRangeByEmp(init);
       }
-    }
-    fetchEmployees();
+    })();
   }, []);
 
-  // Filtrado de empleados basado en búsqueda y filtros
-  const filteredEmployees = employees.filter(employee => {
-    // Buscamos por nombre completo o ID (como cadena)
-    const term = searchTerm.toLowerCase();
-    const fullName = `${employee.nombre} ${employee.apellido}`.toLowerCase();
-    const idStr = employee.id_empleado.toString();
-    const matchesSearch = term === '' || idStr.includes(term) || fullName.includes(term);
-
-    // Filtrar por puesto; si se seleccionó algún puesto (valor distinto de vacío)
-    const matchesPuesto =
-      filterPuesto === '' ||
-      (employee.puesto && employee.puesto.nombre.toLowerCase() === filterPuesto.toLowerCase());
-
-    // Filtrar por estado de asistencia (estado_empleado)
-    const matchesEstadoEmpleado =
-      filterEstadoEmpleado === '' ||
-      employee.estado_empleado.toLowerCase() === filterEstadoEmpleado.toLowerCase();
-
-    // Filtrar por estado de cuenta
-    const matchesEstadoCuenta =
-      filterEstadoCuenta === '' ||
-      employee.estado_cuenta === parseInt(filterEstadoCuenta);
-
-    return matchesSearch && matchesPuesto && matchesEstadoEmpleado && matchesEstadoCuenta;
-  });
-
-  async function handleToggleAccount(employee: Employee) {
-    if (employee.estado_cuenta === 1) {
-      // Proceso para desactivar la cuenta
-      const confirmResult = await MySwal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción desactivará la cuenta del empleado.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, continuar',
-        cancelButtonText: 'Cancelar'
-      });
-
-      if (confirmResult.isConfirmed) {
-        const { value: confirmation } = await MySwal.fire({
-          title: 'Confirmación de seguridad',
-          text: 'Escribe "desactivar" para confirmar la desactivación de la cuenta.',
-          input: 'text',
-          inputPlaceholder: 'Escribe "desactivar"',
-          showCancelButton: true,
-        });
-
-        if (confirmation && confirmation.toLowerCase() === 'desactivar') {
-          const { error } = await supabase
-            .from('empleado')
-            .update({ estado_cuenta: 0 })
-            .eq('id_empleado', employee.id_empleado);
-          if (error) {
-            console.error("Error al desactivar la cuenta:", error);
-            await MySwal.fire('Error', 'Ocurrió un error al desactivar la cuenta.', 'error');
-          } else {
-            await MySwal.fire('Cuenta desactivada', 'La cuenta ha sido desactivada correctamente.', 'success');
-            setEmployees(employees.map(emp =>
-              emp.id_empleado === employee.id_empleado ? { ...emp, estado_cuenta: 0 } : emp
-            ));
-          }
-        } else {
-          await MySwal.fire('Cancelado', 'La desactivación fue cancelada o la confirmación no fue correcta.', 'info');
-        }
+  /* ---------- Helpers de rango ---------- */
+  const calcRange = (r: EmpRange): { desde: string; hasta: string } | null => {
+    const hoy = new Date();
+    const f = (d: Date) => d.toISOString().split("T")[0];
+    switch (r.type) {
+      case "hoy":
+        return { desde: f(hoy), hasta: f(hoy) };
+      case "7dias": {
+        const d = new Date();
+        d.setDate(hoy.getDate() - 7);
+        return { desde: f(d), hasta: f(hoy) };
       }
-    } else {
-      // Proceso para activar la cuenta
-      const confirmResult = await MySwal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción activará la cuenta del empleado.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, continuar',
-        cancelButtonText: 'Cancelar'
-      });
-
-      if (confirmResult.isConfirmed) {
-        const { value: confirmation } = await MySwal.fire({
-          title: 'Confirmación de seguridad',
-          text: 'Escribe "activar" para confirmar la activación de la cuenta.',
-          input: 'text',
-          inputPlaceholder: 'Escribe "activar"',
-          showCancelButton: true,
-        });
-
-        if (confirmation && confirmation.toLowerCase() === 'activar') {
-          const { error } = await supabase
-            .from('empleado')
-            .update({ estado_cuenta: 1 })
-            .eq('id_empleado', employee.id_empleado);
-          if (error) {
-            console.error("Error al activar la cuenta:", error);
-            await MySwal.fire('Error', 'Ocurrió un error al activar la cuenta.', 'error');
-          } else {
-            await MySwal.fire('Cuenta activada', 'La cuenta ha sido activada correctamente.', 'success');
-            setEmployees(employees.map(emp =>
-              emp.id_empleado === employee.id_empleado ? { ...emp, estado_cuenta: 1 } : emp
-            ));
-          }
-        } else {
-          await MySwal.fire('Cancelado', 'La activación fue cancelada o la confirmación no fue correcta.', 'info');
-        }
+      case "30dias": {
+        const d = new Date();
+        d.setDate(hoy.getDate() - 30);
+        return { desde: f(d), hasta: f(hoy) };
       }
+      case "personalizado":
+        if (!r.start || !r.end) return null;
+        return { desde: r.start, hasta: r.end };
     }
-  }
+  };
 
-  // Función que consulta el reporte y genera el PDF
-  async function handleGenerateReportPDF(employee: Employee) {
-    const { data, error } = await supabase
-      .from('control_empleado')
-      .select('*')
-      .eq('id_empleado', employee.id_empleado);
+  /* ---------- Generar PDF ---------- */
+  const genPDF = async (emp: Employee) => {
+    const r = rangeByEmp[emp.id_empleado];
+    const rango = calcRange(r);
+    if (!rango)
+      return MySwal.fire(
+        "Rango incompleto",
+        "Selecciona fecha inicio y fin",
+        "warning"
+      );
+    const { desde, hasta } = rango;
 
-    if (error) {
-      console.error("Error al generar reporte:", error);
-      await MySwal.fire('Error', 'Ocurrió un error al generar el reporte.', 'error');
-      return;
-    }
+    const { data } = await supabase
+      .from("control_empleado")
+      .select("*")
+      .eq("id_empleado", emp.id_empleado)
+      .gte("fecha", desde)
+      .lte("fecha", hasta);
 
     const doc = new jsPDF();
-    const watermark_logo_Base64 = "/marca_agua_logo_circular.png";
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-
-    const imageWidth = 180;
-    const imageHeight = 180;
-    const xPos = (pageWidth - imageWidth) / 2;
-    const yPos = (pageHeight - imageHeight) / 2;
-
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
     doc.addImage(
-      watermark_logo_Base64,
+      "/marca_agua_logo_circular.png",
       "PNG",
-      xPos,
-      yPos,
-      imageWidth,
-      imageHeight,
+      (pw - 180) / 2,
+      (ph - 180) / 2,
+      180,
+      180,
       "",
       "FAST"
     );
 
-    const title = `Reporte de asistencias de ${employee.nombre} ${employee.apellido}`;
-    doc.setFontSize(18);
-    doc.text(title, pageWidth / 2, 20, { align: "center" });
+    doc
+      .setFontSize(18)
+      .text(
+        `Reporte de asistencias de ${emp.nombre} ${emp.apellido}`,
+        pw / 2,
+        20,
+        { align: "center" }
+      );
+    doc.setFontSize(12).text(`Rango: ${desde} a ${hasta}`, 20, 30);
+    doc.text(`Total asistencias: ${data?.length || 0}`, 20, 37);
 
-    const xFecha = 20;
-    const xHoraLlegada = 70;
-    const xHoraSalida = 120;
-    doc.setFontSize(12);
-    let y = 40;
-    doc.text("Fecha", xFecha, y);
-    doc.text("Hora de llegada", xHoraLlegada, y);
-    doc.text("Hora de salida", xHoraSalida, y);
-    y += 10;
+    /* Encabezados */
+    let y = 50;
+    doc.setFont("Helvetica", "bold");
+    doc.text("Fecha", 20, y);
+    doc.text("Día", 60, y);
+    doc.text("Hora entrada", 100, y);
+    doc.text("Hora salida", 140, y);
+    doc.setFont("Helvetica", "normal");
+    y += 8;
 
-    if (data && data.length > 0) {
-      data.forEach((record: any) => {
-        doc.text(String(record.fecha), xFecha, y);
-        doc.text(String(record.hora_entrada), xHoraLlegada, y);
-        doc.text(String(record.hora_salida), xHoraSalida, y);
-        y += 10;
-        if (y > pageHeight - 20) {
-          doc.addPage();
-          y = 20;
-          doc.text("Fecha", xFecha, y);
-          doc.text("Hora de llegada", xHoraLlegada, y);
-          doc.text("Hora de salida", xHoraSalida, y);
-          y += 10;
-        }
-      });
-    } else {
-      doc.text("No se encontraron registros de asistencia.", 20, y);
-    }
+    data?.forEach((rec: any) => {
+      const d = new Date(rec.fecha);
+      doc.text(rec.fecha, 20, y);
+      doc.text(
+        d.toLocaleDateString("es-ES", { weekday: "long" }),
+        60,
+        y
+      );
+      doc.text(String(rec.hora_entrada), 100, y);
+      doc.text(String(rec.hora_salida || "-"), 140, y);
+      y += 7;
+      if (y > ph - 20) {
+        doc.addPage();
+        y = 20;
+      }
+    });
 
-    doc.save(`${title}.pdf`);
-  }
+    doc.save(`Asistencias_${emp.id_empleado}.pdf`);
+  };
 
+  /* ---------- Generar Excel ---------- */
+  const genExcel = async (emp: Employee) => {
+    const r = rangeByEmp[emp.id_empleado];
+    const rango = calcRange(r);
+    if (!rango)
+      return MySwal.fire(
+        "Rango incompleto",
+        "Selecciona fecha inicio y fin",
+        "warning"
+      );
+    const { desde, hasta } = rango;
+
+    const { data } = await supabase
+      .from("control_empleado")
+      .select("*")
+      .eq("id_empleado", emp.id_empleado)
+      .gte("fecha", desde)
+      .lte("fecha", hasta);
+
+    const rows: any[][] = [
+      [`Reporte de asistencias de ${emp.nombre} ${emp.apellido}`],
+      ["Rango:", `${desde} → ${hasta}`],
+      ["Total asistencias", data?.length || 0],
+      [],
+      ["Fecha", "Día", "Hora entrada", "Hora salida"],
+    ];
+
+    data?.forEach((rec: any) => {
+      const d = new Date(rec.fecha);
+      rows.push([
+        rec.fecha,
+        d.toLocaleDateString("es-ES", { weekday: "long" }),
+        rec.hora_entrada,
+        rec.hora_salida || "-",
+      ]);
+    });
+
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, utils.aoa_to_sheet(rows), "Asistencias");
+    writeFile(wb, `Asistencias_${emp.id_empleado}.xlsx`);
+  };
+
+  /* ---------- Filtro visual de la lista ---------- */
+  const filteredEmployees = employees.filter((e) => {
+    const term = searchTerm.toLowerCase();
+    const full = `${e.nombre} ${e.apellido}`.toLowerCase();
+    const idStr = e.id_empleado.toString();
+    const matchSearch = !term || full.includes(term) || idStr.includes(term);
+    const matchPuesto =
+      !filterPuesto ||
+      e.puesto?.nombre.toLowerCase() === filterPuesto.toLowerCase();
+    const matchEstado =
+      !filterEstadoEmpleado ||
+      e.estado_empleado.toLowerCase() === filterEstadoEmpleado.toLowerCase();
+    const matchCuenta =
+      !filterEstadoCuenta || e.estado_cuenta === Number(filterEstadoCuenta);
+    return matchSearch && matchPuesto && matchEstado && matchCuenta;
+  });
+
+  /* ---------- Render ---------- */
   return (
     <LayoutWithSidebar>
       <div className="control_personal_page">
         <div className="control_personal_container">
-          {/*SELECCIÓN DE ESTADO*/}
+          {/* Estado empleado */}
           <div className="estado-row">
             <h4>Opciones para notificar cese de actividades:</h4>
             <select
               value={selectedStatus}
-              onChange={e => setSelectedStatus(e.target.value)}
+              onChange={(e) => setSelectedStatus(e.target.value)}
             >
               <option value="En el almuerzo">En el almuerzo</option>
               <option value="Turno cerrado">Turno cerrado</option>
@@ -310,110 +293,141 @@ export default function ControlPersonalPage() {
           </div>
 
           <h1>Panel de Visualización y Control de Acceso del Personal</h1>
-          {/* Barra de búsqueda y filtros */}
+
+          {/* Buscador global */}
           <div className="search_filters_container">
-            <input 
-              type="text" 
-              placeholder="Buscar empleado por nombre o ID" 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
+            <input
+              type="text"
+              placeholder="Buscar empleado por nombre o ID"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <div className='filter_item_container'>
-                <div className="filter_item">
-                    <label>Filtrar por puesto:</label>
-                    <select 
-                        value={filterPuesto} 
-                        onChange={(e) => setFilterPuesto(e.target.value)}
-                    >
-                        <option value="">Todos los puestos</option>
-                        <option value="gerente">Gerente</option>
-                        <option value="operador">Operador</option>
-                        <option value="vendedor">Vendedor</option>
-                        <option value="mantenimiento">Mantenimiento</option>
-                        <option value="control de acceso">Control de acceso</option>
-                        {/* Agrega más opciones según tus datos */}
-                    </select>
-                </div>
-                <div className="filter_item">
-                    <label>Filtrar por asistencia:</label>
-                    <select 
-                        value={filterEstadoEmpleado} 
-                        onChange={(e) => setFilterEstadoEmpleado(e.target.value)}
-                    >
-                        <option value="">Todas las asistencias</option>
-                        <option value="Presente">Presente</option>
-                        <option value="Ausente">Ausente</option>
-                    </select>
-                </div>
-                <div className="filter_item">
-                    <label>Filtrar por estado de cuenta:</label>
-                    <select 
-                        value={filterEstadoCuenta} 
-                        onChange={(e) => setFilterEstadoCuenta(e.target.value)}
-                    >
-                        <option value="">Todas las cuentas</option>
-                        <option value="1">Activa</option>
-                        <option value="0">Desactivada</option>
-                    </select>
-                </div>
-            </div>
+            {/* ... aquí mantienes tus filtros globales (puesto, asistencia, cuenta) ... */}
           </div>
+
+          {/* Listado */}
           <div className="personal_container">
-            {filteredEmployees.map((employee) => (
-              <div key={employee.id_empleado} className="employee_card">
-                <div className="employee_info_container">
-                  <div className="employee_info_left">
-                    <img
-                      src={employee.empleado_foto}
-                      alt={`${employee.nombre} ${employee.apellido}`}
-                    />
-                    <p>
-                      <strong>Nombre:</strong> {employee.nombre} {employee.apellido}
-                    </p>
+            {filteredEmployees.map((emp) => {
+              const thisRange = rangeByEmp[emp.id_empleado] || { type: "hoy" };
+
+              return (
+                <div key={emp.id_empleado} className="employee_card">
+                  {/* -------- Info -------- */}
+                  <div className="employee_info_container">
+                    <div className="employee_info_left">
+                      <img
+                        src={emp.empleado_foto}
+                        alt={`${emp.nombre} ${emp.apellido}`}
+                      />
+                      <p>
+                        <strong>Nombre:</strong> {emp.nombre} {emp.apellido}
+                      </p>
+                    </div>
+                    <div className="employee_info_right">
+                      <p>
+                        <strong>ID:</strong> {emp.id_empleado}
+                      </p>
+                      <p>
+                        <strong>Fecha de contratación:</strong>{" "}
+                        {emp.fecha_contratacion}
+                      </p>
+                      <p>
+                        <strong>Puesto:</strong>{" "}
+                        {emp.puesto?.nombre || "Sin asignar"}
+                      </p>
+                      <p>
+                        <strong>Asistencia:</strong> {emp.estado_empleado}
+                      </p>
+                      <p>
+                        <strong>Estado:</strong> {emp.estado_actividad_empleado}
+                      </p>
+                      <p>
+                        <strong>Teléfono:</strong> {emp.telefono}
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {emp.email}
+                      </p>
+                      <p>
+                        <strong>Estado de cuenta:</strong>{" "}
+                        {emp.estado_cuenta === 1 ? "Activa" : "Desactivada"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="employee_info_right">
-                    <p>
-                      <strong>ID:</strong> {employee.id_empleado}
-                    </p>
-                    <p>
-                      <strong>Fecha de contratación:</strong> {employee.fecha_contratacion}
-                    </p>
-                    <p>
-                      <strong>Puesto:</strong> {employee.puesto?.nombre || "Sin asignar"}
-                    </p>
-                    <p>
-                      <strong>Asistencia:</strong> {employee.estado_empleado}
-                    </p>
-                    <p>
-                      <strong>Estado:</strong> {employee.estado_actividad_empleado}
-                    </p>
-                    <p>
-                      <strong>Teléfono:</strong> {employee.telefono}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {employee.email}
-                    </p>
-                    <p>
-                      <strong>Estado de cuenta:</strong> {employee.estado_cuenta === 1 ? "Activa" : "Desactivada"}
-                    </p>
+
+                  {/* -------- Controles -------- */}
+                  <div className="employee_control_buttons_container">
+                    {/* Selector rango */}
+                    <select
+                      className="employee_control_button_combobox"
+                      value={thisRange.type}
+                      onChange={(e) =>
+                        setRangeByEmp((prev) => ({
+                          ...prev,
+                          [emp.id_empleado]: {
+                            type: e.target.value as RangeType,
+                            start: undefined,
+                            end: undefined,
+                          },
+                        }))
+                      }
+                    >
+                      <option value="hoy">Hoy</option>
+                      <option value="7dias">Últimos 7 días</option>
+                      <option value="30dias">Últimos 30 días</option>
+                      <option value="personalizado">Personalizado</option>
+                    </select>
+
+                    {/* Inputs fechas si personalizado */}
+                    {thisRange.type === "personalizado" && (
+                      <>
+                        <input
+                          className="employee_control_button_combobox"
+                          type="date"
+                          value={thisRange.start || ""}
+                          onChange={(e) =>
+                            setRangeByEmp((prev) => ({
+                              ...prev,
+                              [emp.id_empleado]: {
+                                ...thisRange,
+                                start: e.target.value,
+                              },
+                            }))
+                          }
+                        />
+                        <input
+                          className="employee_control_button_combobox"
+                          type="date"
+                          value={thisRange.end || ""}
+                          onChange={(e) =>
+                            setRangeByEmp((prev) => ({
+                              ...prev,
+                              [emp.id_empleado]: {
+                                ...thisRange,
+                                end: e.target.value,
+                              },
+                            }))
+                          }
+                        />
+                      </>
+                    )}
+
+                    {/* Botones exportar */}
+                    <button
+                      className="employee_control_button"
+                      onClick={() => genPDF(emp)}
+                    >
+                      PDF asistencias
+                    </button>
+                    <button
+                      className="employee_control_button_excel"
+                      onClick={() => genExcel(emp)}
+                    >
+                      Excel asistencias
+                    </button>
                   </div>
                 </div>
-                <div className="employee_control_buttons_container">
-                  <button
-                    className="employee_control_button"
-                    onClick={() => handleGenerateReportPDF(employee)}
-                  >
-                    Ver asistencias
-                  </button>
-                  {/*<button
-                    className="employee_control_button"
-                    onClick={() => handleToggleAccount(employee)}
-                  >
-                    {employee.estado_cuenta === 1 ? "Desactivar cuenta" : "Activar cuenta"}
-                  </button>*/}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

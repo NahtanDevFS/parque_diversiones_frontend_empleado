@@ -42,7 +42,7 @@ export default function JuegoDetalle() {
   
   
    // Validación del token para proteger la ruta
-          useEffect(() => {
+ useEffect(() => {
   // 1) Validación de sesión y permisos
   const stored = localStorage.getItem('employeeSession');
   if (!stored) {
@@ -73,20 +73,24 @@ export default function JuegoDetalle() {
   // 2) Si aún no cargó la atracción, esperamos
   if (!atraccion) return;
 
-  // 3) Disparamos el update del estado del empleado
-  const nuevoEstado = `En la atracción ${atraccion.nombre}`;
-  supabase
-    .from('empleado')
-    .update({ estado_actividad_empleado: nuevoEstado })
-    .eq('id_empleado', id_empleado)
-    .then(({ data, error }) => {
-      if (error) {
-        console.error('Error al actualizar estado automático:', error);
-      } else {
-        console.log('Estado automático actualizado:', data);
+  (async () => {
+      if (id_puesto !== 6) {
+        // 3) Disparamos el update del estado del empleado
+        const nuevoEstado = `En la atracción ${atraccion.nombre}`;
+        await supabase
+          .from('empleado')
+          .update({ estado_actividad_empleado: nuevoEstado })
+          .eq('id_empleado', id_empleado)
+          .then(({ data, error }) => {
+            if (error) {
+              console.error('Error al actualizar estado automático:', error);
+            } else {
+              console.log('Estado automático actualizado:', data);
+            }
+          });
       }
-    });
-}, [router, atraccion]);
+    })();
+  }, [router, atraccion]);
   
   useEffect(() => {
     async function fetchAtraccion() {
