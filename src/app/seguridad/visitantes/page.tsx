@@ -395,7 +395,7 @@ if (id_puesto !== 6) {
   return (
     <LayoutWithSidebar>
 
-<div className="estado-barra">
+<div className="estado-barra-visitantes">
   <label>
     Opciones para notificar cese de actividades:
     <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
