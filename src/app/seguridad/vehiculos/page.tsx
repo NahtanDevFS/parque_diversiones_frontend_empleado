@@ -190,13 +190,12 @@ export default function VehiculosPage() {
   return (
     <LayoutWithSidebar>
 
-      <div className="estado-barra">
+      <div className="estado-barra-vehiculos">
   <label>
   Opciones para notificar cese de actividades:
     <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
       <option value="En el almuerzo">En el almuerzo</option>
       <option value="Turno cerrado">Turno cerrado</option>
-      <option value="Ausencia temporal">Ausencia temporal</option>
     </select>
   </label>
   <button onClick={handleStatusUpdate}>Actualizar estado</button>

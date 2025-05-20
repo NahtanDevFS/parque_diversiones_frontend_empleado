@@ -181,42 +181,29 @@
 
 
 
-.estado-barra {
+.estado-barra-visitantes {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch; /* Ocupa todo el ancho */
+  gap: 10px;
   background-color: #fb923c;
-  padding: 10px 20px;
-  border-radius: 10px;
-  max-width: 700px;
-  margin: 20px auto;
-  flex-wrap: wrap; /* se adapta en pantallas pequeñas */
+  padding: 15px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 300px; /* opcional para limitar el ancho */
+  margin: 0 auto; /* centrar el contenedor */
 }
 
-.estado-barra label {
+.estado-barra-visitantes label {
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   color: #1f2937;
 }
 
-.estado-barra select {
-  padding: 6px 12px;
+.estado-barra-visitantes select,
+.estado-barra-visitantes button {
+  padding: 8px;
+  font-size: 1rem;
   border-radius: 5px;
-  border: none;
-  background-color: white;
-}
-
-.estado-barra button {
-  background-color: #facc15;
-  color: #000 !important;
-   -webkit-text-fill-color: #000;
-    background-color: white;
-  padding: 6px 16px;
-  border-radius: 5px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
+  border: 1px solid #ccc;
+  color: #000000;
 }
